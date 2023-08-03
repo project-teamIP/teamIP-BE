@@ -7,5 +7,5 @@ assignees: userkim12, giminion, hyun1024, jonghyeon1013
 
 ---
 
-###목표 기능
+### 목표 기능
 여기에 목표를 입력하세요.
