@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "users")
 @NoArgsConstructor
 public class User {
     @Id
@@ -64,14 +65,14 @@ public class User {
     public static User of(SignupRequestDto signupRequestDto, String encodedPassword) {
 
         return User.builder()
-                .loginId(signupRequestDto.getEmail())
+                .loginId(signupRequestDto.getLoginId())
                 .password(encodedPassword)
                 .nickname(signupRequestDto.getNickname())
                 .language(signupRequestDto.getLanguage())
                 .build();
     }
 
-    private void updateReportedCount() {
+    public void updateReportedCount() {
         this.reportedCount++;
     }
 }
