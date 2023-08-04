@@ -29,8 +29,16 @@ public class UserService {
                 .build();
     }
 
+
+
+    public StatusResponseDto withdrawal(Long userId) {
+
+        return new StatusResponseDto(HttpStatus.OK, "회원 탈퇴 성공");
+    }
+
+
     private void checkDuplicatedValue(User user) {
-        isExistedEmail(user.getUsername());
+        isExistedloginId(user.getLoginId());
         isExistedNickname(user.getNickname());
     }
 
@@ -42,15 +50,12 @@ public class UserService {
 
     }
 
-    private void isExistedEmail(String email) {
-        User findUser = userRepository.findByUsername(email).orElse(null);
+    private void isExistedloginId(String loginId) {
+        User findUser = userRepository.findByLoginId(loginId).orElse(null);
         if (findUser != null) {
             throw new RuntimeException("이미 존재하는 계정입니다.");
         }
     }
 
-    public StatusResponseDto withdrawal(Long userId) {
 
-        return new StatusResponseDto(HttpStatus.OK, "회원 탈퇴 성공");
-    }
 }

@@ -42,7 +42,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        String token = jwtUtil.createToken(((UserDetails) authResult.getPrincipal()).getUsername());
+        // getUsername == getLoginId(email or id)
+        String token = jwtUtil.createToken(((UserDetailsImpl) authResult.getPrincipal()).getUsername());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
         response.setContentType("application/json");
