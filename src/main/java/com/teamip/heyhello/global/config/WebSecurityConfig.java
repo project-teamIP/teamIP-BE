@@ -1,6 +1,7 @@
 package com.teamip.heyhello.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.JwtAuthenticationFilter;
 import com.teamip.heyhello.global.auth.JwtAuthorizationFilter;
 import com.teamip.heyhello.global.auth.UserDetailsServiceImpl;
@@ -27,6 +28,7 @@ public class WebSecurityConfig {
     private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration configuration;
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserRepository userRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -40,7 +42,7 @@ public class WebSecurityConfig {
     }
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, objectMapper);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, objectMapper, userRepository);
         try {
             filter.setAuthenticationManager(authenticationManager(configuration));
         } catch (Exception e) {

@@ -8,12 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginRequestDto {
     // 유효성 검사
-    @JsonProperty("email")
-    private String username;
+    private String loginId;
     private String password;
 
-    public LoginRequestDto(String username, String password) {
-        this.username = username;
+    public LoginRequestDto(String loginId, String password) {
+        this.loginId = loginId;
         this.password = password;
     }
 }

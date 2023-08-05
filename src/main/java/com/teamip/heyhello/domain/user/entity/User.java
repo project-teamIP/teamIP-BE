@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "users")
 @NoArgsConstructor
 public class User {
     @Id
@@ -15,8 +16,8 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false, name = "email")
-    private String username;
+    @Column(nullable = false)
+    private String loginId;
 
     @Column(nullable = false)
     private String password;
@@ -43,9 +44,9 @@ public class User {
     private Long reportedCount;
 
     @Builder
-    private User(String username, String password, String nickname, String language) {
+    private User(String loginId, String password, String nickname, String language) {
 
-        this.username = username;
+        this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
         this.language = language;
@@ -64,10 +65,15 @@ public class User {
     public static User of(SignupRequestDto signupRequestDto, String encodedPassword) {
 
         return User.builder()
-                .username(signupRequestDto.getEmail())
+                .loginId(signupRequestDto.getLoginId())
                 .password(encodedPassword)
                 .nickname(signupRequestDto.getNickname())
                 .language(signupRequestDto.getLanguage())
                 .build();
     }
+
+    public void updateReportedCount() {
+        this.reportedCount++;
+    }
+    public void disableUserAccount() {this.isBlocked = Boolean.TRUE;}
 }
