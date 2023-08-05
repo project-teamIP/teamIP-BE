@@ -75,4 +75,5 @@ public class User {
     public void updateReportedCount() {
         this.reportedCount++;
     }
+    public void disableUserAccount() {this.isBlocked = Boolean.TRUE;}
 }

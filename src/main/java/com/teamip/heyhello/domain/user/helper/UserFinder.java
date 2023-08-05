@@ -5,6 +5,7 @@ import com.teamip.heyhello.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -24,5 +25,10 @@ public class UserFinder {
         return user.orElseThrow(
                 () -> new RuntimeException("존재하지 않는 사용자입니다.")
         );
+    }
+
+    public List<User> findAll() {
+
+        return userRepository.findAll();
     }
 }
