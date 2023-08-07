@@ -40,12 +40,9 @@ public class User {
     @Column(nullable = false)
     private Boolean isBlocked;
 
-    @Column(nullable = false)
-    private Long reportedCount;
 
     @Builder
     private User(String loginId, String password, String nickname, String language) {
-
         this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
@@ -54,13 +51,8 @@ public class User {
         this.isKakao = Boolean.FALSE;
         this.isGoogle = Boolean.FALSE;
         this.isBlocked = Boolean.FALSE;
-        this.reportedCount = 0L;
     }
 
-//    @Builder
-//    private User(String username, String randomNickname) {
-//
-//    }
 
     public static User of(SignupRequestDto signupRequestDto, String encodedPassword) {
 
@@ -72,8 +64,8 @@ public class User {
                 .build();
     }
 
-    public void updateReportedCount() {
-        this.reportedCount++;
+    public void disableUserAccount() {
+        this.isBlocked = Boolean.TRUE;
+        System.out.println("유저가 밴당했써요...");
     }
-    public void disableUserAccount() {this.isBlocked = Boolean.TRUE;}
 }

@@ -7,7 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
-    Optional<User> findByRequestUserAndTargetUser(User requestUser, User targetUser);
-
-    Optional<User> findByTargetUser(User user);
+    Optional<Report> findByRequestUserAndTargetUser(User requestUser, User targetUser);
 }
