@@ -1,16 +1,18 @@
 package com.teamip.heyhello.domain.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
 import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
-import com.teamip.heyhello.domain.user.service.KakaoService;
 import com.teamip.heyhello.domain.user.service.UserService;
+import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final KakaoService kakaoService;
+//    private final KakaoService kakaoService;
 
     @PostMapping("/signup")
     public ResponseEntity<StatusResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto){
@@ -33,16 +35,22 @@ public class UserController {
         return ResponseEntity.ok(userService.withdrawal(userId));
     }
 
-    @GetMapping("/login/kakao")
-    public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        // code: 카카오 서버로부터 받은 인가 코드 Service 전달 후 인증 처리 및 JWT 반환
-        String token = kakaoService.kakaoLogin(code);
+    @GetMapping("/mypage")
+    public ResponseEntity<MypageResponseDto> getMypage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        // Cookie 생성 및 직접 브라우저에 Set
-        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, token.substring(7));
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        return "redirect:/";
+        return ResponseEntity.ok(userService.getMypage(userDetails));
     }
+
+//    @GetMapping("/login/kakao")
+//    public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+//        // code: 카카오 서버로부터 받은 인가 코드 Service 전달 후 인증 처리 및 JWT 반환
+//        String token = kakaoService.kakaoLogin(code);
+//
+//        // Cookie 생성 및 직접 브라우저에 Set
+//        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, token.substring(7));
+//        cookie.setPath("/");
+//        response.addCookie(cookie);
+//
+//        return "redirect:/";
+//    }
 }

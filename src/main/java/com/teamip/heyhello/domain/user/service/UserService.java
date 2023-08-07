@@ -1,9 +1,11 @@
 package com.teamip.heyhello.domain.user.service;
 
+import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
 import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
+import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,7 +50,7 @@ public class UserService {
 
 
     private void checkDuplicatedValue(User user) {
-        isExistedloginId(user.getLoginId());
+        isExistedLoginId(user.getLoginId());
         isExistedNickname(user.getNickname());
     }
 
@@ -60,7 +62,7 @@ public class UserService {
 
     }
 
-    private void isExistedloginId(String loginId) {
+    private void isExistedLoginId(String loginId) {
         User findUser = userRepository.findByLoginId(loginId).orElse(null);
         if (findUser != null) {
             throw new RuntimeException("이미 존재하는 계정입니다.");
@@ -68,4 +70,11 @@ public class UserService {
     }
 
 
+    public MypageResponseDto getMypage(UserDetailsImpl userDetails) {
+        User user = userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(
+                () -> new RuntimeException("존재하지 않는 사용자입니다.")
+        );
+
+        return MypageResponseDto.of(user);
+    }
 }
