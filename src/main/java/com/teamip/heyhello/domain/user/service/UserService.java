@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -29,6 +30,15 @@ public class UserService {
                 .build();
     }
 
+    @Transactional
+    public void initializeUserInfo(Long userId, String country, String gender, String language, String interest) {
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user != null) {
+            // 회원 정보 업데이트
+            user.initializeUserInfo(country, gender,language, interest);
+        }
+    }
 
 
     public StatusResponseDto withdrawal(Long userId) {

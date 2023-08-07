@@ -40,19 +40,28 @@ public class User {
     @Column(nullable = false)
     private Boolean isBlocked;
 
+    @Column(nullable = false)
+    private String country;
+
+    @Column(nullable = false)
+    private String gender;
+
+    @Column(nullable = false)
+    private String interest;
 
     @Builder
-    private User(String loginId, String password, String nickname, String language) {
+    private User(String loginId, String password, String nickname) {
         this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
-        this.language = language;
         this.cleanPoint = 50L;
         this.isKakao = Boolean.FALSE;
         this.isGoogle = Boolean.FALSE;
         this.isBlocked = Boolean.FALSE;
+        this.country = "Default";
+        this.gender = "Default";
+        this.interest = "Default";
     }
-
 
     public static User of(SignupRequestDto signupRequestDto, String encodedPassword) {
 
@@ -60,8 +69,14 @@ public class User {
                 .loginId(signupRequestDto.getLoginId())
                 .password(encodedPassword)
                 .nickname(signupRequestDto.getNickname())
-                .language(signupRequestDto.getLanguage())
                 .build();
+    }
+
+    public void initializeUserInfo(String country, String gender, String language, String interest) {
+        this.country = country;
+        this.gender = gender;
+        this.language = language;
+        this.interest = interest;
     }
 
     public void disableUserAccount() {
