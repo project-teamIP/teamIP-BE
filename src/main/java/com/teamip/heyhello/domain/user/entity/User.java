@@ -1,11 +1,15 @@
 package com.teamip.heyhello.domain.user.entity;
 
+import com.teamip.heyhello.domain.memo.entity.Memo;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
 import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -41,6 +45,9 @@ public class User {
     @Column(nullable = false)
     private Boolean isLocked;
 
+    @OneToMany(mappedBy = "user")
+    private List<Memo> MemoList = new ArrayList<>();
+
     @Column(nullable = false)
     private String country;
 
@@ -49,6 +56,7 @@ public class User {
 
     @Column(nullable = false)
     private String interest;
+
 
     @Builder
     private User(String loginId, String password, String nickname) {
