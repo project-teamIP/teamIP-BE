@@ -39,7 +39,7 @@ public class User {
     private Long cleanPoint;
 
     @Column(nullable = false)
-    private Boolean isBlocked;
+    private Boolean isLocked;
 
     @Column(nullable = false)
     private String country;
@@ -58,7 +58,7 @@ public class User {
         this.cleanPoint = 50L;
         this.isKakao = Boolean.FALSE;
         this.isGoogle = Boolean.FALSE;
-        this.isBlocked = Boolean.FALSE;
+        this.isLocked = Boolean.FALSE;
         this.country = "Default";
         this.gender = "Default";
         this.interest = "Default";
@@ -81,6 +81,6 @@ public class User {
     }
 
     public void disableUserAccount() {
-        this.isBlocked = Boolean.TRUE;
+        this.isLocked = Boolean.TRUE;
     }
 }

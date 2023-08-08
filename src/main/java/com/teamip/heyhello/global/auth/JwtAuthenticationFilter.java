@@ -74,7 +74,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         User user = userRepository.findByLoginId(loginId).orElseThrow(
                 () -> new IOException("")
         );
-        if(Boolean.TRUE.equals(user.getIsBlocked())) {
+        if(Boolean.TRUE.equals(user.getIsLocked())) {
             throw new IllegalAccessException();
         }
 
