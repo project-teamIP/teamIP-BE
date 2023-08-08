@@ -50,7 +50,7 @@ public class BlockService {
     private void checkRequestValidity(User requestUser, User targetUser) {
 
         if (requestUser.getNickname().equals(targetUser.getNickname())) {
-            throw new RuntimeException("자기 자신을 신고할 수 없습니다.");
+            throw new RuntimeException("자기 자신을 차단할 수 없습니다.");
         }
     }
 }
