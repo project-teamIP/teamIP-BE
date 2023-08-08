@@ -1,5 +1,6 @@
 package com.teamip.heyhello.domain.memo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.teamip.heyhello.domain.memo.dto.MemoRequestDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -19,7 +20,8 @@ public class Memo {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @ManyToOne
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
