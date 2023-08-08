@@ -5,6 +5,7 @@ import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.JwtAuthenticationFilter;
 import com.teamip.heyhello.global.auth.JwtAuthorizationFilter;
 import com.teamip.heyhello.global.auth.UserDetailsServiceImpl;
+import com.teamip.heyhello.global.redis.TokenService;
 import com.teamip.heyhello.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
+    private final TokenService tokenService;
     private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration configuration;
     private final UserDetailsServiceImpl userDetailsService;
@@ -42,7 +44,7 @@ public class WebSecurityConfig {
     }
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, objectMapper, userRepository);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(tokenService, objectMapper, userRepository);
         try {
             filter.setAuthenticationManager(authenticationManager(configuration));
         } catch (Exception e) {
