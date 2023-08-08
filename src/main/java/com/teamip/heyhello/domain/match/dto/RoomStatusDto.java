@@ -25,4 +25,13 @@ public class RoomStatusDto {
         this.user2Endpoint = user2Endpoint;
         this.createdAt = LocalDateTime.now();
     }
+
+    public static RoomStatusDto of(MatchInfoRequestDto waitUserDto, MatchInfoRequestDto requestUserDto){
+        return RoomStatusDto.builder()
+                .user1(waitUserDto.getUser())
+                .user2(requestUserDto.getUser())
+                .user1Endpoint(waitUserDto.getUserEndpoint())
+                .user2Endpoint(requestUserDto.getUserEndpoint())
+                .build();
+    }
 }
