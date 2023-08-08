@@ -1,5 +1,7 @@
 package com.teamip.heyhello.domain.match.service;
 
+import com.teamip.heyhello.domain.block.entity.Block;
+import com.teamip.heyhello.domain.block.repository.BlockRepository;
 import com.teamip.heyhello.domain.match.collection.ActivateRoom;
 import com.teamip.heyhello.domain.match.collection.ChatQueue;
 import com.teamip.heyhello.domain.match.dto.MatchInfoRequestDto;
@@ -16,12 +18,14 @@ public class MatchService {
     private final ChatQueue chatQueue;
     private final ActivateRoom activeRoom;
     private final UserRepository userRepository;
+    private final BlockRepository blockRepository;
 
     @Autowired
-    public MatchService(ChatQueue chatQueue, ActivateRoom activeRoom, UserRepository userRepository) {
+    public MatchService(ChatQueue chatQueue, ActivateRoom activeRoom, UserRepository userRepository, BlockRepository blockRepository) {
         this.chatQueue = chatQueue;
         this.activeRoom = activeRoom;
         this.userRepository = userRepository;
+        this.blockRepository = blockRepository;
     }
 
     public synchronized RoomStatusDto checkDirectMatch(String loginId) {
@@ -35,8 +39,6 @@ public class MatchService {
 
 
     public synchronized void findMatch(MatchInfoRequestDto matchInfoRequestDto) {
-
-        log.info("findMatch 시작");
         if (chatQueue.getChatQueue().isEmpty()) {
             addUserToQueueIfEmpty(matchInfoRequestDto);
             return;
@@ -47,41 +49,45 @@ public class MatchService {
     }
 
     private void addUserToQueueIfEmpty(MatchInfoRequestDto matchInfoRequestDto) {
-        log.info("대기중인 유저가 없으므로 대기리스트에 추가");
-        chatQueue.getChatQueue().put(matchInfoRequestDto.getUser(), matchInfoRequestDto);
+        chatQueue.getChatQueue().put(matchInfoRequestDto.getUser().getId(), matchInfoRequestDto);
     }
 
     private void isUserAlreadyInCollection(MatchInfoRequestDto matchInfoRequestDto) {
-        if (chatQueue.getChatQueue().containsKey(matchInfoRequestDto.getUser())) {
+        if (chatQueue.getChatQueue().containsKey(matchInfoRequestDto.getUser().getId())) {
             throw new IllegalArgumentException("이미 대기열에 등록된 유저입니다. 매칭 정보를 변경하고 싶은 경우 매칭 취소 후 다시 시도해주세요");
         }
     }
 
     private void searchUserFromCondition(MatchInfoRequestDto requestUserDto) {
         for (MatchInfoRequestDto waitUserDto : chatQueue.getChatQueue().values()) {
-            if (waitUserDto.getUserLanguage().equals(requestUserDto.getTargetLanguage())) {
-                activeRoom.getActivateRooms().add(RoomStatusDto.builder()
-                        .user1(waitUserDto.getUser())
-                        .user2(requestUserDto.getUser())
-                        .user1Endpoint(waitUserDto.getUserEndpoint())
-                        .user2Endpoint(requestUserDto.getUserEndpoint())
-                        .build()
-                );
-                chatQueue.getChatQueue().remove(waitUserDto.getUser());
-                log.info("매칭 성공. 남은 " + requestUserDto.getTargetLanguage() + " 매칭 대기자 : " + chatQueue.getChatQueue().size() + " 명");
-                log.info("추가 후 현재 활성화된 대화 방 수 : " + activeRoom.getActivateRooms().size());
+            if (isTargetLanguage(waitUserDto, requestUserDto) && isNotBlockedEach(waitUserDto, requestUserDto)) {
+                    activeRoom.getActivateRooms().add(RoomStatusDto.of(waitUserDto, requestUserDto));
+                chatQueue.getChatQueue().remove(waitUserDto.getUser().getId());
+                log.info("현재 활성화된 대화 방 수 : " + activeRoom.getActivateRooms().size());
                 requestUserDto.successMatch(waitUserDto);
-                return;
-            } else {
-                chatQueue.getChatQueue().put(requestUserDto.getUser(), requestUserDto);
-                log.info("매칭에 실패했으므로 대기 리스트에 추가. 현재 " + requestUserDto.getUserLanguage() + " 사용자 매칭 대기자 : " + chatQueue.getChatQueue().size() + " 명");
                 return;
             }
         }
+        chatQueue.getChatQueue().put(requestUserDto.getUser().getId(), requestUserDto);
     }
 
+    private boolean isTargetLanguage(MatchInfoRequestDto waitUserDto, MatchInfoRequestDto requestUserDto) {
+        return waitUserDto.getUserLanguage().equals(requestUserDto.getTargetLanguage());
+    }
+    private boolean isNotBlockedEach(MatchInfoRequestDto waitUserDto, MatchInfoRequestDto requestUserDto) {
+        Block block1 = blockRepository.findByRequestUserAndTargetUser(requestUserDto.getUser(), waitUserDto.getUser()).orElse(null);
+        Block block2 = blockRepository.findByRequestUserAndTargetUser(waitUserDto.getUser(), requestUserDto.getUser()).orElse(null);
+        if (block1 != null || block2 != null) {
+
+            return false;
+        }
+        return true;
+
+    }
     public void removeFromList(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("유저 정보가 잘못되었습니다. 요청을 다시 확인해주세요."));
-        chatQueue.getChatQueue().remove(user);
+        log.info( "chatQueue size = "+chatQueue.getChatQueue().size());
+        chatQueue.getChatQueue().remove(userId);
+        log.info("remove 후 chatQueue size = " + chatQueue.getChatQueue().size());
     }
 }

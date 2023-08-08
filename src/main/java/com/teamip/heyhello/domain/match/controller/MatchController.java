@@ -20,7 +20,7 @@ public class MatchController {
     private final MatchService matchService;
     private final MessageService messageService;
 
-    @MessageMapping("/{endpoint}")
+    @MessageMapping("/start/{endpoint}")
     public void checkMatch(@DestinationVariable String endpoint, Message message) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         MatchInfoRequestDto matchInfoRequestDto = messageService.parseHeadersInfo(headerAccessor);
@@ -30,5 +30,14 @@ public class MatchController {
             roomStatusDto = matchService.checkDirectMatch(matchInfoRequestDto.getUser().getLoginId());
         }
         messageService.SendSearchResult(endpoint, roomStatusDto);
+    }
+
+    @MessageMapping("/stop/{endpoint}")
+    public void stopMatch(@DestinationVariable String endpoint, Message message){
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        Long userId = Long.valueOf(headerAccessor.getNativeHeader("userId").get(0));
+        matchService.removeFromList(userId);
+
+        messageService.SendStopMatchResult(endpoint);
     }
 }

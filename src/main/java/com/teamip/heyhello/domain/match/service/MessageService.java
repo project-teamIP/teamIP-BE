@@ -72,4 +72,8 @@ public class MessageService {
         header.put("user", roomStatusDto.getUser1().getNickname());
         simpMessageSendingOperations.convertAndSend("/match/" + roomStatusDto.getUser1Endpoint(), "매칭 유저가 탐지되었습니다. 헤더의 path를 endpoint로 연결 정보를 전송합니다.", header);
     }
+
+    public void SendStopMatchResult(String endpoint) {
+        simpMessageSendingOperations.convertAndSend("/match/"+endpoint, "매칭 취소가 완료되었습니다!");
+    }
 }

@@ -15,7 +15,7 @@ import java.util.*;
 @Getter
 public class ChatQueue {
 
-    private final Map<User, MatchInfoRequestDto> chatQueue = Collections.synchronizedMap(new LinkedHashMap<>());
+    private final Map<Long, MatchInfoRequestDto> chatQueue = Collections.synchronizedMap(new LinkedHashMap<>());
 
     @Scheduled(fixedRate = 30 * 60 * 1000) // 30분(ms 단위)
     public void removeInactiveUserMatches() {
@@ -23,10 +23,10 @@ public class ChatQueue {
 
         List<String> removedUserIds = new ArrayList<>();
         synchronized (chatQueue) {
-            Iterator<Map.Entry<User, MatchInfoRequestDto>> iterator = chatQueue.entrySet().iterator();
+            Iterator<Map.Entry<Long, MatchInfoRequestDto>> iterator = chatQueue.entrySet().iterator();
 
             while (iterator.hasNext()) {
-                Map.Entry<User, MatchInfoRequestDto> entry = iterator.next();
+                Map.Entry<Long, MatchInfoRequestDto> entry = iterator.next();
                 MatchInfoRequestDto matchInfoRequestDto = entry.getValue();
                 if (matchInfoRequestDto.getCreatedAt().isBefore(thirtyMinutesAgo)) {
                     iterator.remove();
