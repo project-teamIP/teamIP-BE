@@ -1,4 +1,4 @@
-INSERT INTO users (is_blocked, is_google, is_kakao, clean_point,
+INSERT INTO users (is_locked, is_google, is_kakao, clean_point,
                    language, country, login_id, nickname, password,
                    interest, gender)
 VALUES (false, false, false, 50, 'KOREAN', 'SOUTH_KOREA', 'test01@gmail.com', '유저01', '$2a$10$nRiw2L4edlhC2.kSuy70XONhXgpVeWgXRAfsPp.NiFsBXMxhoOYr2', 'GAME', 'MALE'),
