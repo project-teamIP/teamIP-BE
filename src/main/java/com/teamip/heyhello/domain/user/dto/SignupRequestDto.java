@@ -10,6 +10,4 @@ public class SignupRequestDto {
     private String loginId;
     private String password;
     private String nickname;
-    private String language;
-
 }

@@ -1,12 +1,11 @@
 package com.teamip.heyhello.global.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamip.heyhello.domain.user.dto.LoginRequestDto;
 import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
-import com.teamip.heyhello.global.util.JwtUtil;
+import com.teamip.heyhello.global.redis.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,21 +15,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final JwtUtil jwtUtil;
+    private TokenService tokenService;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, ObjectMapper objectMapper, UserRepository userRepository) {
-        this.jwtUtil = jwtUtil;
+
+    public JwtAuthenticationFilter(TokenService tokenService, ObjectMapper objectMapper, UserRepository userRepository) {
+        this.tokenService = tokenService;
         this.objectMapper = objectMapper;
         this.userRepository = userRepository;
     }
@@ -50,12 +48,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         return null;
     }
 
-
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        // getUsername == getLoginId(email or id)
-        String token = jwtUtil.createToken(((UserDetailsImpl) authResult.getPrincipal()).getUsername());
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        String loginId = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
+        String accessToken = tokenService.generateAccessToken(loginId);
+        String refreshToken = tokenService.generateRefreshToken(loginId);
+
+        response.setHeader("AccessToken", accessToken);
+        response.setHeader("RefreshToken", refreshToken);
 
         StatusResponseDto responseDto = new StatusResponseDto(HttpStatus.OK, "로그인 성공");
         returnStatusResponse(response, responseDto, HttpStatus.OK);
@@ -74,7 +74,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         User user = userRepository.findByLoginId(loginId).orElseThrow(
                 () -> new IOException("")
         );
-        if(Boolean.TRUE.equals(user.getIsBlocked())) {
+        if(Boolean.TRUE.equals(user.getIsLocked())) {
             throw new IllegalAccessException();
         }
 
@@ -89,11 +89,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
     }
 
-    private void returnStatusResponse(HttpServletResponse response, StatusResponseDto statusResponseDto, HttpStatus httpStatus) throws IOException {
+    private<T> void returnStatusResponse(HttpServletResponse response, T payload, HttpStatus httpStatus) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.setStatus(httpStatus.value());
-        String responseString = objectMapper.writeValueAsString(statusResponseDto);
+        String responseString = objectMapper.writeValueAsString(payload);
         response.getWriter().write(responseString);
     }
 }

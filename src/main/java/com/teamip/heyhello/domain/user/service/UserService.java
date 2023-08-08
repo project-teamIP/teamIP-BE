@@ -1,14 +1,18 @@
 package com.teamip.heyhello.domain.user.service;
 
+import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
 import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
+import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -29,6 +33,27 @@ public class UserService {
                 .build();
     }
 
+    @Transactional
+    public StatusResponseDto initRemainingUserInfo(UserDetailsImpl userDetails, UpdateUserInfoDto updateUserInfoDto) {
+        User user = userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(
+                () -> new RuntimeException("존재하지 않는 사용자입니다.")
+        );
+
+        user.initializeUserInfo(updateUserInfoDto);
+
+        return StatusResponseDto.builder()
+                .status(HttpStatus.CREATED)
+                .message("추가정보 등록 성공")
+                .build();
+    }
+
+    public MypageResponseDto getMypage(UserDetailsImpl userDetails) {
+        User user = userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(
+                () -> new RuntimeException("존재하지 않는 사용자입니다.")
+        );
+
+        return MypageResponseDto.of(user);
+    }
 
 
     public StatusResponseDto withdrawal(Long userId) {
@@ -38,24 +63,24 @@ public class UserService {
 
 
     private void checkDuplicatedValue(User user) {
-        isExistedloginId(user.getLoginId());
+        isExistedLoginId(user.getLoginId());
         isExistedNickname(user.getNickname());
     }
 
     private void isExistedNickname(String nickname) {
-        User findUser = userRepository.findByNickname(nickname).orElse(null);
-        if (findUser != null) {
-            throw new RuntimeException("이미 존재하는 닉네임입니다.");
-        }
+        userRepository.findByNickname(nickname).ifPresent(
+                user -> {
+                    throw new RuntimeException("이미 존재하는 닉네임입니다.");
+                }
+        );
 
     }
 
-    private void isExistedloginId(String loginId) {
-        User findUser = userRepository.findByLoginId(loginId).orElse(null);
-        if (findUser != null) {
-            throw new RuntimeException("이미 존재하는 계정입니다.");
-        }
+    private void isExistedLoginId(String loginId) {
+        userRepository.findByLoginId(loginId).ifPresent(
+                user -> {
+                    throw new RuntimeException("이미 존재하는 계정입니다.");
+                }
+        );
     }
-
-
 }

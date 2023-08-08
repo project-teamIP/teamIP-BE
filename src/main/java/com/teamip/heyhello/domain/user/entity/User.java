@@ -2,6 +2,7 @@ package com.teamip.heyhello.domain.user.entity;
 
 import com.teamip.heyhello.domain.memo.entity.Memo;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
+import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +21,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String loginId;
 
     @Column(nullable = false)
@@ -42,23 +43,34 @@ public class User {
     private Long cleanPoint;
 
     @Column(nullable = false)
-    private Boolean isBlocked;
+    private Boolean isLocked;
 
     @OneToMany(mappedBy = "user")
     private List<Memo> MemoList = new ArrayList<>();
 
+    @Column(nullable = false)
+    private String country;
+
+    @Column(nullable = false)
+    private String gender;
+
+    @Column(nullable = false)
+    private String interest;
+
+
     @Builder
-    private User(String loginId, String password, String nickname, String language) {
+    private User(String loginId, String password, String nickname) {
         this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
-        this.language = language;
         this.cleanPoint = 50L;
         this.isKakao = Boolean.FALSE;
         this.isGoogle = Boolean.FALSE;
-        this.isBlocked = Boolean.FALSE;
+        this.isLocked = Boolean.FALSE;
+        this.country = "Default";
+        this.gender = "Default";
+        this.interest = "Default";
     }
-
 
     public static User of(SignupRequestDto signupRequestDto, String encodedPassword) {
 
@@ -66,12 +78,17 @@ public class User {
                 .loginId(signupRequestDto.getLoginId())
                 .password(encodedPassword)
                 .nickname(signupRequestDto.getNickname())
-                .language(signupRequestDto.getLanguage())
                 .build();
     }
 
+    public void initializeUserInfo(UpdateUserInfoDto updateUserInfoDto) {
+        this.country = updateUserInfoDto.getCountry();
+        this.gender = updateUserInfoDto.getGender();
+        this.language = updateUserInfoDto.getLanguage();
+        this.interest = updateUserInfoDto.getInterest();
+    }
+
     public void disableUserAccount() {
-        this.isBlocked = Boolean.TRUE;
-        System.out.println("유저가 밴당했써요...");
+        this.isLocked = Boolean.TRUE;
     }
 }
