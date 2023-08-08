@@ -1,6 +1,5 @@
 package com.teamip.heyhello.global.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamip.heyhello.domain.user.dto.LoginRequestDto;
 import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
@@ -16,11 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -74,7 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         User user = userRepository.findByLoginId(loginId).orElseThrow(
                 () -> new IOException("")
         );
-        if(Boolean.TRUE.equals(user.getIsBlocked())) {
+        if(Boolean.TRUE.equals(user.getIsLocked())) {
             throw new IllegalAccessException();
         }
 
