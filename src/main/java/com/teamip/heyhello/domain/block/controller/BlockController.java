@@ -1,7 +1,7 @@
 package com.teamip.heyhello.domain.block.controller;
 
 import com.teamip.heyhello.domain.block.service.BlockService;
-import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

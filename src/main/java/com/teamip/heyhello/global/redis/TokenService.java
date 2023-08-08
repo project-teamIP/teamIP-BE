@@ -1,6 +1,6 @@
 package com.teamip.heyhello.global.redis;
 
-import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;

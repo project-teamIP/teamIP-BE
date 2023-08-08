@@ -2,7 +2,7 @@ package com.teamip.heyhello.global.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamip.heyhello.domain.user.dto.LoginRequestDto;
-import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.redis.TokenService;

@@ -1,6 +1,6 @@
 package com.teamip.heyhello.global.auth;
 
-import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.redis.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

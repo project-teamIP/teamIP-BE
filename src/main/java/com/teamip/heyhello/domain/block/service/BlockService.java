@@ -2,7 +2,7 @@ package com.teamip.heyhello.domain.block.service;
 
 import com.teamip.heyhello.domain.block.entity.Block;
 import com.teamip.heyhello.domain.block.repository.BlockRepository;
-import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;

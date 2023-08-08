@@ -2,7 +2,7 @@ package com.teamip.heyhello.domain.user.controller;
 
 import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
-import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
 import com.teamip.heyhello.domain.user.service.UserService;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
