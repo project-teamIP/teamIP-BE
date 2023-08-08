@@ -1,6 +1,7 @@
 package com.teamip.heyhello.domain.user.entity;
 
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
+import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String loginId;
 
     @Column(nullable = false)
@@ -72,15 +73,14 @@ public class User {
                 .build();
     }
 
-    public void initializeUserInfo(String country, String gender, String language, String interest) {
-        this.country = country;
-        this.gender = gender;
-        this.language = language;
-        this.interest = interest;
+    public void initializeUserInfo(UpdateUserInfoDto updateUserInfoDto) {
+        this.country = updateUserInfoDto.getCountry();
+        this.gender = updateUserInfoDto.getGender();
+        this.language = updateUserInfoDto.getLanguage();
+        this.interest = updateUserInfoDto.getInterest();
     }
 
     public void disableUserAccount() {
         this.isLocked = Boolean.TRUE;
-        System.out.println("유저가 밴당했써요...");
     }
 }

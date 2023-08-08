@@ -21,14 +21,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
         this.jwtUtil = jwtUtil;
-        this. userDetailsService = userDetailsService;
+        this.userDetailsService = userDetailsService;
     }
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtil.getSubstringTokenFromRequest(request);
-        if(token!=null) {
+        if (token != null) {
             tryAuthentication(token);
         }
         filterChain.doFilter(request, response);
@@ -50,15 +50,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
     }
 
-    private void setAuthentication(String email) {
+    private void setAuthentication(String loginId) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(email);
+        Authentication authentication = createAuthentication(loginId);
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
     }
 
-    private Authentication createAuthentication(String email) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+    private Authentication createAuthentication(String loginId) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginId);
         return new UsernamePasswordAuthenticationToken(userDetails, null, null);
 
     }

@@ -1,14 +1,11 @@
 package com.teamip.heyhello.domain.user.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
 import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
 import com.teamip.heyhello.domain.user.service.UserService;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
-import com.teamip.heyhello.global.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +36,14 @@ public class UserController {
     public ResponseEntity<MypageResponseDto> getMypage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         return ResponseEntity.ok(userService.getMypage(userDetails));
+    }
+
+    @PostMapping("/info")
+    public ResponseEntity<StatusResponseDto> initRemainingUserInfo(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody UpdateUserInfoDto updateUserInfoDto) {
+
+        return ResponseEntity.ok(userService.initRemainingUserInfo(userDetails, updateUserInfoDto));
     }
 
 //    @GetMapping("/login/kakao")
