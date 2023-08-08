@@ -6,9 +6,15 @@ import com.teamip.heyhello.domain.memo.entity.Memo;
 import com.teamip.heyhello.domain.memo.repository.MemoRepository;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +76,20 @@ public class MemoService {
         return new MemoResponseDto(memo);
     }
 
+    // 메모를 5개씩 페이징으로 조회하는 메서드
+    public Page<Memo> findMemosWithPaging(String tokenValue, int page, int size) {
+        // token에서 현재 user 조회
+        User currentUser = getUserFromToken(tokenValue);
+
+        // 현재 유저의 ID 가져오기
+        Long userId = currentUser.getId();
+
+        // ID 내림차순으로 정렬한 페이징
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+
+        return memoRepository.findByUserId(userId, pageable);
+    }
+
     // 선택한 메모 수정 메서드
     @Transactional
     public MemoResponseDto updateMemo(String tokenValue, Long id, MemoRequestDto requestDto){
@@ -90,7 +110,7 @@ public class MemoService {
     }
 
     // 선택한 메모 삭제 메서드
-    public ResponseEntity<String> deleteMemo(String tokenValue, Long id){
+    public StatusResponseDto deleteMemo(String tokenValue, Long id){
         // token에서 현재 user 조회
         User currentUser = getUserFromToken(tokenValue);
 
@@ -104,7 +124,10 @@ public class MemoService {
 
         memoRepository.delete(memo);
 
-        return ResponseEntity.ok("메모를 삭제했습니다.");
+        return StatusResponseDto.builder()
+                .status(HttpStatus.OK)
+                .message("메모를 삭제했습니다.")
+                .build();
     }
 
     // 메모 찾는 메서드

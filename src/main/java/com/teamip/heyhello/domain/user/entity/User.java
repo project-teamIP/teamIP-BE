@@ -1,5 +1,6 @@
 package com.teamip.heyhello.domain.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.teamip.heyhello.domain.memo.entity.Memo;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
 import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
@@ -45,7 +46,8 @@ public class User {
     @Column(nullable = false)
     private Boolean isLocked;
 
-    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Memo> MemoList = new ArrayList<>();
 
     @Column(nullable = false)
