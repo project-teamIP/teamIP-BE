@@ -102,16 +102,17 @@ public class UserService {
                 }
         );
     }
-
+    
+    @Transactional
     public UrlResponseDto modifyProfileImage(UserDetailsImpl userDetails, MultipartFile image) throws IOException {
         User user = userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(
                 () -> new RuntimeException("존재하지 않는 사용자입니다.")
         );
+        String imageUrl = s3UploadService.saveFile(image);
+        
         if (!user.getImage().contains(".png")) {
             s3UploadService.deleteImage(user.getImage());
         }
-        String imageUrl = s3UploadService.saveFile(image);
-
         user.modifyProfileImage(imageUrl);
 
         return UrlResponseDto.builder()
