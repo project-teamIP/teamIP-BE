@@ -2,6 +2,7 @@ package com.teamip.heyhello.domain.user.controller;
 
 import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
+import com.teamip.heyhello.domain.user.dto.UrlResponseDto;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
 import com.teamip.heyhello.domain.user.service.UserService;
@@ -11,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,4 +62,10 @@ public class UserController {
 //
 //        return "redirect:/";
 //    }
+    @PutMapping("/image")
+    public ResponseEntity<UrlResponseDto> modifyProfileImage(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestPart(value = "image",required = false) MultipartFile image) throws IOException {
+        return ResponseEntity.ok(userService.modifyProfileImage(userDetails, image));
+    }
 }
