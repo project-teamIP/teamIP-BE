@@ -59,9 +59,12 @@ public class User {
     @Column(nullable = false)
     private String interest;
 
+    @Column(nullable = false)
+    private String image;
+
 
     @Builder
-    private User(String loginId, String password, String nickname) {
+    private User(String loginId, String password, String nickname, String image) {
         this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
@@ -72,14 +75,16 @@ public class User {
         this.country = "Default";
         this.gender = "Default";
         this.interest = "Default";
+        this.image = image;
     }
 
-    public static User of(SignupRequestDto signupRequestDto, String encodedPassword) {
+    public static User of(SignupRequestDto signupRequestDto, String encodedPassword, String defaultImageUrl) {
 
         return User.builder()
                 .loginId(signupRequestDto.getLoginId())
                 .password(encodedPassword)
                 .nickname(signupRequestDto.getNickname())
+                .image(defaultImageUrl)
                 .build();
     }
 
@@ -92,5 +97,9 @@ public class User {
 
     public void disableUserAccount() {
         this.isLocked = Boolean.TRUE;
+    }
+
+    public void modifyProfileImage(String imageUrl) {
+        this.image = imageUrl;
     }
 }
