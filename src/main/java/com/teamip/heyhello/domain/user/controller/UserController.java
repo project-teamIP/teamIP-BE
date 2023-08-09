@@ -1,12 +1,18 @@
 package com.teamip.heyhello.domain.user.controller;
 
+import com.teamip.heyhello.domain.user.dto.BuddyResponseDto;
 import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
-import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
+import com.teamip.heyhello.domain.user.service.BuddyService;
 import com.teamip.heyhello.domain.user.service.UserService;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,16 +24,17 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final BuddyService buddyService;
 //    private final KakaoService kakaoService;
 
     @PostMapping("/signup")
-    public ResponseEntity<StatusResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto){
+    public ResponseEntity<StatusResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.signup(signupRequestDto));
     }
 
     @DeleteMapping("/withdrawal")
-    public ResponseEntity<StatusResponseDto> withdrawal(@RequestParam Long userId){
+    public ResponseEntity<StatusResponseDto> withdrawal(@RequestParam Long userId) {
 
         return ResponseEntity.ok(userService.withdrawal(userId));
     }
@@ -44,6 +51,28 @@ public class UserController {
             @RequestBody UpdateUserInfoDto updateUserInfoDto) {
 
         return ResponseEntity.ok(userService.initRemainingUserInfo(userDetails, updateUserInfoDto));
+    }
+
+    @PostMapping("/buddy/{nickname}")
+    public ResponseEntity<StatusResponseDto> addBuddy(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                      @PathVariable String nickname) {
+
+        return ResponseEntity.ok(buddyService.addBuddy(userDetails, nickname));
+    }
+
+    @GetMapping("/buddy")
+    public ResponseEntity<Page<BuddyResponseDto>> getBuddies(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                             @PageableDefault(page = 1, size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return ResponseEntity.ok(buddyService.getBuddies(userDetails, pageable));
+    }
+
+    @DeleteMapping("/buddy/{nickname}")
+    public  ResponseEntity<StatusResponseDto> deleteBuddy(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                          @PathVariable String nickname) {
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(buddyService.deleteBuddy(userDetails, nickname));
     }
 
 //    @GetMapping("/login/kakao")
