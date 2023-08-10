@@ -58,6 +58,14 @@ public class UserController {
         return ResponseEntity.ok(userService.initRemainingUserInfo(userDetails, updateUserInfoDto));
     }
 
+    @GetMapping("/check")
+    public ResponseEntity<StatusResponseDto> checkDuplicated(@RequestParam(required = false) String email,
+                                                             @RequestParam(required = false) String nickname) {
+
+        return ResponseEntity.ok().body(userService.checkDuplicated(email, nickname));
+    }
+
+
     @PostMapping("/buddy/{nickname}")
     public ResponseEntity<StatusResponseDto> addBuddy(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                       @PathVariable String nickname) {
@@ -92,10 +100,12 @@ public class UserController {
 //
 //        return "redirect:/";
 //    }
+
     @PutMapping("/image")
     public ResponseEntity<UrlResponseDto> modifyProfileImage(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestPart(value = "image",required = false) MultipartFile image) throws IOException {
+
         return ResponseEntity.ok(userService.modifyProfileImage(userDetails, image));
     }
 }
