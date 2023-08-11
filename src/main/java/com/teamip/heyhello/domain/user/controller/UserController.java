@@ -1,11 +1,6 @@
 package com.teamip.heyhello.domain.user.controller;
 
-import com.teamip.heyhello.domain.user.dto.BuddyResponseDto;
-import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
-import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
-import com.teamip.heyhello.domain.user.dto.UrlResponseDto;
-import com.teamip.heyhello.global.dto.StatusResponseDto;
-import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
+import com.teamip.heyhello.domain.user.dto.*;
 import com.teamip.heyhello.domain.user.service.BuddyService;
 import com.teamip.heyhello.domain.user.service.UserService;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
@@ -50,13 +45,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getMypage(userDetails));
     }
 
-    @PostMapping("/info")
-    public ResponseEntity<StatusResponseDto> initRemainingUserInfo(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody UpdateUserInfoDto updateUserInfoDto) {
+    @PatchMapping
+    public ResponseEntity<StatusResponseDto> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                           @RequestBody UpdateProfileDto updateProfileDto) {
 
-        return ResponseEntity.ok(userService.initRemainingUserInfo(userDetails, updateUserInfoDto));
+        return ResponseEntity.ok(userService.updateProfile(userDetails, updateProfileDto));
     }
+
 
     @GetMapping("/check")
     public ResponseEntity<StatusResponseDto> checkDuplicated(@RequestParam(required = false) String email,
@@ -81,8 +76,8 @@ public class UserController {
     }
 
     @DeleteMapping("/buddy/{nickname}")
-    public  ResponseEntity<StatusResponseDto> deleteBuddy(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                          @PathVariable String nickname) {
+    public ResponseEntity<StatusResponseDto> deleteBuddy(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                         @PathVariable String nickname) {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(buddyService.deleteBuddy(userDetails, nickname));
@@ -104,7 +99,7 @@ public class UserController {
     @PutMapping("/image")
     public ResponseEntity<UrlResponseDto> modifyProfileImage(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart(value = "image",required = false) MultipartFile image) throws IOException {
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
         return ResponseEntity.ok(userService.modifyProfileImage(userDetails, image));
     }
