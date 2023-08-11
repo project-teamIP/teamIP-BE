@@ -5,6 +5,7 @@ import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.JwtAuthenticationFilter;
 import com.teamip.heyhello.global.auth.JwtAuthorizationFilter;
 import com.teamip.heyhello.global.auth.UserDetailsServiceImpl;
+import com.teamip.heyhello.global.redis.TokenService;
 import com.teamip.heyhello.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,12 +20,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
+    private final TokenService tokenService;
     private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration configuration;
     private final UserDetailsServiceImpl userDetailsService;
@@ -37,12 +42,26 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public JwtAuthorizationFilter jwtAuthorizationFilter(){
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.addExposedHeader("*");
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
+
+    @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter() {
         return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
     }
+
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, objectMapper, userRepository);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(tokenService, objectMapper, userRepository);
         try {
             filter.setAuthenticationManager(authenticationManager(configuration));
         } catch (Exception e) {
@@ -67,6 +86,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(
                         request -> request.anyRequest().permitAll()
                 )
+                .addFilter(corsFilter())
                 .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 

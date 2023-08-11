@@ -5,12 +5,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class LoginRequestDto {
+public class BuddyResponseDto {
+    private String nickname;
     private String loginId;
-    private String password;
 
-    public LoginRequestDto(String loginId, String password) {
+    public BuddyResponseDto(String nickname, String loginId) {
+        this.nickname = nickname;
         this.loginId = loginId;
-        this.password = password;
     }
 }

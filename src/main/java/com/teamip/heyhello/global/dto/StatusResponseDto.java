@@ -1,4 +1,4 @@
-package com.teamip.heyhello.domain.user.dto;
+package com.teamip.heyhello.global.dto;
 
 import lombok.Builder;
 import lombok.Getter;

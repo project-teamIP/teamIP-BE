@@ -6,7 +6,7 @@ import com.teamip.heyhello.domain.report.entity.ReportCategory;
 import com.teamip.heyhello.domain.report.entity.ReportCount;
 import com.teamip.heyhello.domain.report.repository.ReportCountRepository;
 import com.teamip.heyhello.domain.report.repository.ReportRepository;
-import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;

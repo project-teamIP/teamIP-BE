@@ -2,7 +2,7 @@ package com.teamip.heyhello.domain.report.controller;
 
 import com.teamip.heyhello.domain.report.dto.ReportRequestDto;
 import com.teamip.heyhello.domain.report.service.ReportService;
-import com.teamip.heyhello.domain.user.dto.StatusResponseDto;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -8,4 +8,10 @@ import lombok.NoArgsConstructor;
 public class ReportRequestDto {
     private String nickname;
     private String category;
+
+    public ReportRequestDto(String nickname, String category){
+        this.nickname = nickname;
+        this.category = category;
+    }
+
 }
