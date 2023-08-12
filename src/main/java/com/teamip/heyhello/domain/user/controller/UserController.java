@@ -34,7 +34,7 @@ public class UserController {
     private final KakaoService kakaoService;
     private final GoogleService googleService;
     private final BuddyService buddyService;
-    private final MemoService memoService; // 토큰으로 유저 찾는 메서드 필요해서 가져왔습니다
+    private final MemoService memoService;
 
 
     @PostMapping("/signup")
@@ -103,7 +103,6 @@ public class UserController {
 
     @GetMapping("/login/kakao")
     public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        // code: 카카오 서버로부터 받은 인가 코드 Service 전달 후 인증 처리 및 JWT 반환
         String token = kakaoService.kakaoLogin(code);
         User user = memoService.getUserFromToken(token);
 
@@ -115,7 +114,6 @@ public class UserController {
 
     @GetMapping("/login/google")
     public ResponseEntity<LoginResponseDto> googleLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        // code: 카카오 서버로부터 받은 인가 코드 Service 전달 후 인증 처리 및 JWT 반환
         String token = googleService.googleLogin(code);
         User user = memoService.getUserFromToken(token);
 
