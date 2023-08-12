@@ -20,7 +20,6 @@ public class BlackListRepository {
     }
 
     public void setBlackList(BlackListJwt blackListJwt) {
-        String loginId = blackListJwt.getLoginId();
         String atk = blackListJwt.getAtk();
         long remainingTime = jwtUtil.getRemainingSeconds(blackListJwt.getAtk());
 
@@ -33,8 +32,7 @@ public class BlackListRepository {
         String loginId = jwtUtil.getLoginIdFromToken(atk);
 
         ValueOperations<String, String> valueOperations = blackList.opsForValue();
-        String findAtk = (String) valueOperations.get(atk);
-
+        String findAtk = (String) valueOperations.get(JwtUtil.BEARER_PREFIX + atk);
         return Optional.ofNullable(findAtk)
                 .map(token -> new BlackListJwt(loginId, findAtk));
     }

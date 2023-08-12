@@ -13,34 +13,38 @@ import java.util.concurrent.TimeUnit;
 @Repository
 @RequiredArgsConstructor
 public class RefreshTokenRepository {
+    private static final String RE_TKN = "refreshToken";
+    private static final String RTK_EXP_STR = "rtk_expTime";
     private static final Long EXP = 1000L * 60 * 60 * 24 * 14;
     private final RedisTemplate<String, String> redisTemplate;
 
     public String createAndSave(String loginId) {
         String rtk = UUID.randomUUID().toString();
         HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.put(loginId, "refreshToken", rtk);
-        hashOperations.put(loginId, "rtk_expTime", EXP + "");
+        hashOperations.put(loginId, RE_TKN, rtk);
+        hashOperations.put(loginId, RTK_EXP_STR, EXP + "");
         redisTemplate.expire(loginId, EXP, TimeUnit.SECONDS);
 
         return rtk;
     }
 
-    public Optional<RefreshToken> findByLoginId(String loginId) {
+    public Optional<RefreshToken> findByLoginIdAndRefreshToken(String loginId, String rtk) {
         HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-        String rtk = (String) hashOperations.get(loginId, "refreshToken");
-        String expStr = (String) hashOperations.get(loginId, "rtk_expTime");
+        String findRtk = (String) hashOperations.get(loginId, RE_TKN);
+        String expStr = (String) hashOperations.get(loginId, RTK_EXP_STR);
 
-        return Optional.ofNullable(rtk)
-                .map(id -> new RefreshToken(loginId, rtk, expStr));
+        if (!rtk.equals(findRtk)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new RefreshToken(loginId, findRtk, expStr));
     }
 
     public void deleteByRefreshToken(String loginId) {
-        System.out.println("loginId = " + loginId);
         HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.delete(loginId, "rtk_expTime");
-        Long deletedId = hashOperations.delete(loginId, "refreshToken");
-        if(deletedId == 0) {
+        hashOperations.delete(loginId, RTK_EXP_STR);
+        Long deletedId = hashOperations.delete(loginId, RE_TKN);
+        if (deletedId == 0) {
             throw new RuntimeException("리프레시토큰이 존재하지 않습니다.");
         }
     }
