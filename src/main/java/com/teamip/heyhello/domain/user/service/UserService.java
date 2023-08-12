@@ -105,7 +105,7 @@ public class UserService {
     }
 
 
-    private String setRandomDefaultImageUrl() {
+    public String setRandomDefaultImageUrl() {
         ArrayList<String> defaultImageKey = new ArrayList<>(List.of("profile1.png", "profile2.png", "profile3.png"));
 
         int randomIndex = random.nextInt(defaultImageKey.size());

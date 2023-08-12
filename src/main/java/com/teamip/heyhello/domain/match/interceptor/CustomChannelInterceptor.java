@@ -25,7 +25,7 @@ public class CustomChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (StompCommand.CONNECT.equals(headerAccessor.getCommand())) {
 
-            if(!jwtUtil.validateToken(headerAccessor.getNativeHeader("Authorization").get(0))){
+            if(!jwtUtil.validateToken(headerAccessor.getNativeHeader("AccessToken").get(0))){
                 log.info("토큰 에러입니다. 조심하세요");
             }
             return message;

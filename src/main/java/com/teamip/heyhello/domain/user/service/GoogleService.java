@@ -29,28 +29,23 @@ public class GoogleService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
 
     public String googleLogin(String code) throws JsonProcessingException {
-        // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
-        // 2. 토큰으로 구글 API 호출 : "액세스 토큰"으로 "구글 사용자 정보" 가져오기
         GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(accessToken);
 
-        // 3. 필요시에 회원가입
         User googleUser = registerGoogleUserIfNeeded(googleUserInfo);
 
-        // 4. JWT 토큰 반환
-        String createToken = jwtUtil.createToken(googleUser.getLoginId());
+        String createToken = jwtUtil.createAccessToken(googleUser.getLoginId());
 
         return createToken;
     }
 
     private String getToken(String code) throws JsonProcessingException {
-        log.info("인가코드 : " + code);
-        // 요청 URL 만들기
         URI uri = UriComponentsBuilder
                 .fromUriString("https://www.googleapis.com")
                 .path("/oauth2/v4/token")
@@ -58,11 +53,9 @@ public class GoogleService {
                 .build()
                 .toUri();
 
-        // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "366803150284-5hqk1vqq15s6aqjfa3d9om2j1t9c2r0u.apps.googleusercontent.com");
@@ -75,19 +68,15 @@ public class GoogleService {
                 .headers(headers)
                 .body(body);
 
-        // HTTP 요청 보내기
         ResponseEntity<String> response = restTemplate.exchange(
                 requestEntity,
                 String.class
         );
 
-        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
         return jsonNode.get("access_token").asText();
     }
     private GoogleUserInfoDto getGoogleUserInfo(String accessToken) throws JsonProcessingException {
-        log.info("accessToken : " + accessToken);
-        // 요청 URL 만들기
         URI uri = UriComponentsBuilder
                 .fromUriString("https://www.googleapis.com")
                 .path("/oauth2/v3/userinfo")
@@ -95,9 +84,8 @@ public class GoogleService {
                 .build()
                 .toUri();
 
-        // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);  //토큰이란것을 알려주는 식별자 붙이기
+        headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
         RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
@@ -105,7 +93,6 @@ public class GoogleService {
                 .headers(headers)
                 .body(new LinkedMultiValueMap<>());
 
-        // HTTP 요청 보내기
         ResponseEntity<String> response = restTemplate.exchange(
                 requestEntity,
                 String.class
@@ -113,7 +100,6 @@ public class GoogleService {
 
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
         String id = jsonNode.get("sub").toString();
-        log.info("구글 사용자 정보: " + id);
         return new GoogleUserInfoDto(id);
     }
 
@@ -126,11 +112,13 @@ public class GoogleService {
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
             String nickname = UUID.randomUUID().toString();
+            String image = userService.setRandomDefaultImageUrl();
 
             googleUser = User.builder()
                     .loginId(googleId)
                     .password(encodedPassword)
                     .nickname(nickname)
+                    .image(image)
                     .build();
 
             userRepository.save(googleUser);

@@ -41,7 +41,7 @@ public class TokenService {
         }
 
         String generatedAtk = generateAccessToken(loginId);
-        response.addHeader("Authorization", generatedAtk);
+        response.addHeader("AccessToken", generatedAtk);
 
         return StatusResponseDto.builder()
                 .status(HttpStatus.OK)

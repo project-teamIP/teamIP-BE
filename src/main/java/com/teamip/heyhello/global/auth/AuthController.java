@@ -26,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/api/users/logout")
-    public ResponseEntity<StatusResponseDto> logoutWithToken(@RequestHeader("Authorization") String atk,
+    public ResponseEntity<StatusResponseDto> logoutWithToken(@RequestHeader("AccessToken") String atk,
                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         return ResponseEntity.ok(tokenService.logoutWithAtk(atk, userDetails));
