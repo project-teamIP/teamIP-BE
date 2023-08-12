@@ -43,7 +43,7 @@ public class GoogleService {
         User googleUser = registerGoogleUserIfNeeded(googleUserInfo);
 
         // 4. JWT 토큰 반환
-        String createToken = jwtUtil.createToken(googleUser.getLoginId());
+        String createToken = jwtUtil.createAccessToken(googleUser.getLoginId());
 
         return createToken;
     }
