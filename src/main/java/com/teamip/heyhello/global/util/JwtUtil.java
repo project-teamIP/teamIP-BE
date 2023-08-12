@@ -19,7 +19,7 @@ import java.util.Date;
 @Slf4j(topic = "JwtUtil")
 public class JwtUtil implements InitializingBean {
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTHORIZATION_HEADER = "AccessToken";
 
     public static final String BEARER_PREFIX = "Bearer ";
 
