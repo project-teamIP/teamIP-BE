@@ -35,8 +35,15 @@ public class MemoService {
         // token에서 현재 user 조회
         User currentUser = getUserFromToken(tokenValue);
 
+        // partnerLoginId로 상대방 user 정보 조회
+        User partnerUser = userRepository.findByNickname(requestDto.getPartnerNickname())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 상대방 프로필 이미지 가져오기
+        String partnerImage = partnerUser.getImage();
+
         // RequestDto -> Entity
-        Memo memo = new Memo(currentUser,requestDto);
+        Memo memo = new Memo(currentUser,requestDto,partnerImage);
 
         // MemoRepository에 저장
         Memo saveMemo = memoRepository.save(memo);
