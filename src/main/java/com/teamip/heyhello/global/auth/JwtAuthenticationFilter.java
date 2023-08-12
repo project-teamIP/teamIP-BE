@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private void isUserBlocked(String loginId) throws IOException, IllegalAccessException {
         User user = userRepository.findByLoginId(loginId).orElseThrow(
-                () -> new IOException("")
+                () -> new IOException()
         );
         if(Boolean.TRUE.equals(user.getIsLocked())) {
             throw new IllegalAccessException();
