@@ -108,7 +108,7 @@ public class UserController {
         User user = memoService.getUserFromToken(token);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", token);
+        headers.add("AccessToken", token);
 
         return ResponseEntity.ok().headers(headers).body(new LoginResponseDto(user));
     }
@@ -120,7 +120,7 @@ public class UserController {
         User user = memoService.getUserFromToken(token);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", token);
+        headers.add("AccessToken", token);
 
         return ResponseEntity.ok().headers(headers).body(new LoginResponseDto(user));
     }

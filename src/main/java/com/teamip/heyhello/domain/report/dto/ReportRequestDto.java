@@ -13,5 +13,4 @@ public class ReportRequestDto {
         this.nickname = nickname;
         this.category = category;
     }
-
 }

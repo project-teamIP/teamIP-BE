@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 
@@ -18,7 +19,7 @@ import java.util.Date;
 @Slf4j(topic = "JwtUtil")
 public class JwtUtil implements InitializingBean {
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTHORIZATION_HEADER = "AccessToken";
 
     public static final String BEARER_PREFIX = "Bearer ";
 
@@ -81,6 +82,11 @@ public class JwtUtil implements InitializingBean {
                 .getBody();
     }
 
+    public String getLoginIdFromToken(String token) {
+        validateToken(token);
+        return getUserInfoFromToken(token).getSubject();
+    }
+
     public String substringToken(String token) {
         if(StringUtils.hasText(token) && token.startsWith(BEARER_PREFIX)) {
             return token.substring(7);
@@ -89,7 +95,19 @@ public class JwtUtil implements InitializingBean {
         return null;
     }
 
+    public long getRemainingSeconds(String jwt) {
+        String token = substringToken(jwt);
+        Jws<Claims> jws = Jwts.parserBuilder()
+                                .setSigningKey(key)
+                                .build()
+                                .parseClaimsJws(token);
+        Claims claims = jws.getBody();
 
+        long expTime = claims.get("exp", Long.class);
+        long currentTime = Instant.now().getEpochSecond();
+
+        return expTime - currentTime;
+    }
 
 }
 
