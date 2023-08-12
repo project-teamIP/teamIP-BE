@@ -1,6 +1,8 @@
 package com.teamip.heyhello.domain.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.teamip.heyhello.domain.memo.service.MemoService;
+import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.service.GoogleService;
 import com.teamip.heyhello.domain.user.service.KakaoService;
 import com.teamip.heyhello.domain.user.dto.*;
@@ -32,6 +34,7 @@ public class UserController {
     private final KakaoService kakaoService;
     private final GoogleService googleService;
     private final BuddyService buddyService;
+    private final MemoService memoService; // 토큰으로 유저 찾는 메서드 필요해서 가져왔습니다
 
 
     @PostMapping("/signup")
@@ -99,21 +102,26 @@ public class UserController {
     }
 
     @GetMapping("/login/kakao")
-    public ResponseEntity<StatusResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        // code: 카카오 서버로부터 받은 인가 코드 Service 전달 후 인증 처리 및 JWT 반환
         String token = kakaoService.kakaoLogin(code);
+        User user = memoService.getUserFromToken(token);
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("AccessToken", token);
 
-        return ResponseEntity.ok().headers(headers).body(StatusResponseDto.builder().status(HttpStatus.OK).message("소셜로그인 성공").build());
+        return ResponseEntity.ok().headers(headers).body(new LoginResponseDto(user));
     }
 
     @GetMapping("/login/google")
-    public ResponseEntity<StatusResponseDto> googleLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<LoginResponseDto> googleLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        // code: 카카오 서버로부터 받은 인가 코드 Service 전달 후 인증 처리 및 JWT 반환
         String token = googleService.googleLogin(code);
+        User user = memoService.getUserFromToken(token);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("AccessToken", token);
 
-        return ResponseEntity.ok().headers(headers).body(StatusResponseDto.builder().status(HttpStatus.OK).message("소셜로그인 성공").build());
+        return ResponseEntity.ok().headers(headers).body(new LoginResponseDto(user));
     }
 }
