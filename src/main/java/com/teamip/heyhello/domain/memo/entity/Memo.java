@@ -3,6 +3,7 @@ package com.teamip.heyhello.domain.memo.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.teamip.heyhello.domain.memo.dto.MemoRequestDto;
 import com.teamip.heyhello.domain.user.entity.User;
+import com.teamip.heyhello.global.audit.TimeStamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Table(name = "memo")
 @NoArgsConstructor
-public class Memo {
+public class Memo extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,18 +21,26 @@ public class Memo {
     @Column(name = "title", nullable = false)
     private String title;
 
+    @Column(name = "content", nullable = false, length = 5000)
+    private String content;
+
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "content", nullable = false, length = 5000)
-    private String content;
+    @Column(name = "partnerNickname", nullable = false)
+    private String partnerNickname;
 
-    public Memo(User user, MemoRequestDto requestDto){
+    @Column(name = "partnerImage", nullable = false)
+    private String partnerImage;
+
+    public Memo(User user, MemoRequestDto requestDto, String partnerImage){
         this.title = requestDto.getTitle();
         this.user = user;
         this.content = requestDto.getContent();
+        this.partnerNickname = requestDto.getPartnerNickname();
+        this.partnerImage = partnerImage;
     }
 
     public void update(MemoRequestDto requestDto) {
