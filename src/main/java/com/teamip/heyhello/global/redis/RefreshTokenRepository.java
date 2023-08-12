@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 @Repository
 @RequiredArgsConstructor
 public class RefreshTokenRepository {
-    private static final Long EXP = 120L;
+    private static final Long EXP = 1000L * 60 * 60 * 24 * 14;
     private final RedisTemplate<String, String> redisTemplate;
 
     public String createAndSave(String loginId) {
@@ -28,17 +28,20 @@ public class RefreshTokenRepository {
 
     public Optional<RefreshToken> findByLoginId(String loginId) {
         HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-        String rtk = (String) hashOperations.get(loginId, "rtk_refreshToken");
-        String expStr = (String) hashOperations.get(loginId, "expTime");
+        String rtk = (String) hashOperations.get(loginId, "refreshToken");
+        String expStr = (String) hashOperations.get(loginId, "rtk_expTime");
 
         return Optional.ofNullable(rtk)
                 .map(id -> new RefreshToken(loginId, rtk, expStr));
     }
 
     public void deleteByRefreshToken(String loginId) {
-        Boolean deleted = redisTemplate.delete(loginId);
-        if (Boolean.FALSE.equals(deleted)) {
-            throw new RuntimeException("해당 RefreshToken은 존재하지 않습니다.");
+        System.out.println("loginId = " + loginId);
+        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+        hashOperations.delete(loginId, "rtk_expTime");
+        Long deletedId = hashOperations.delete(loginId, "refreshToken");
+        if(deletedId == 0) {
+            throw new RuntimeException("리프레시토큰이 존재하지 않습니다.");
         }
     }
 

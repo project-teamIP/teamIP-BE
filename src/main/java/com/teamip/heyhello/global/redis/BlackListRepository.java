@@ -2,8 +2,8 @@ package com.teamip.heyhello.global.redis;
 
 import com.teamip.heyhello.global.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -24,16 +24,16 @@ public class BlackListRepository {
         String atk = blackListJwt.getAtk();
         long remainingTime = jwtUtil.getRemainingSeconds(blackListJwt.getAtk());
 
-        HashOperations<String, String, Object> hashOperations = blackList.opsForHash();
-        hashOperations.put(loginId, "accessToken", atk);
-        hashOperations.put(loginId, "atk_expTime", remainingTime + "");
-        blackList.expire(loginId, remainingTime, TimeUnit.SECONDS);
+        ValueOperations<String ,String> valueOperations = blackList.opsForValue();
+        valueOperations.set(atk, remainingTime + "");
+        blackList.expire(atk, remainingTime, TimeUnit.SECONDS);
     }
 
     public Optional<BlackListJwt> getBlackList(String atk) {
         String loginId = jwtUtil.getLoginIdFromToken(atk);
-        HashOperations<String, String, Object> hashOperations = blackList.opsForHash();
-        String findAtk = (String) hashOperations.get(loginId, "accessToken");
+
+        ValueOperations<String, String> valueOperations = blackList.opsForValue();
+        String findAtk = (String) valueOperations.get(atk);
 
         return Optional.ofNullable(findAtk)
                 .map(token -> new BlackListJwt(loginId, findAtk));

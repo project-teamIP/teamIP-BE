@@ -34,12 +34,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtil.getSubstringTokenFromRequest(request);
         if (token != null) {
-            tryAuthentication(token, response);
+            boolean isAuthenticated = tryAuthentication(token, response);
+            if(isAuthenticated) {
+                filterChain.doFilter(request, response);
+            }
+        } else {
+            filterChain.doFilter(request, response);
         }
-        filterChain.doFilter(request, response);
     }
 
-    private void tryAuthentication(String token, HttpServletResponse response) throws IOException {
+    private boolean tryAuthentication(String token, HttpServletResponse response) throws IOException {
         if (tokenService.isBlackList(token)) {
             StatusResponseDto statusResponseDto =
                     StatusResponseDto.builder()
@@ -51,17 +55,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.SC_BAD_REQUEST);
             String responseString = new ObjectMapper().writeValueAsString(statusResponseDto);
             response.getWriter().write(responseString);
-            return;
+            return false;
         }
 
         Claims userInfo = jwtUtil.getUserInfoFromToken(token);
         String email = userInfo.getSubject();
-
         try {
             setAuthentication(email);
         } catch (Exception e) {
             throw new RuntimeException("SecurityContextHolder에 Authentication 등록 실패");
         }
+        return true;
     }
 
     private void setAuthentication(String loginId) {
