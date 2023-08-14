@@ -22,13 +22,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup MySql
-        uses: mirrormutth/mysql-action@v1.1
+      - name: Setup MySQL
+        uses: mirromutth/mysql-action@v1.1
         with:
           character set server: 'utf8'
           mysql database: heyhello
           mysql user: ${{ secrets.MYSQL_USERNAME }}
           mysql password: ${{ secrets.MYSQL_PASSWORD }}
+          
+      - name: Setup Redis
+        uses: zhulik/redis-action@1.1.0
 
       - name: Give exec permissions to gradlew script
         run: chmod +x gradlew
