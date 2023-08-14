@@ -5,6 +5,7 @@ import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.JwtAuthenticationFilter;
 import com.teamip.heyhello.global.auth.JwtAuthorizationFilter;
 import com.teamip.heyhello.global.auth.UserDetailsServiceImpl;
+import com.teamip.heyhello.global.exception.ExceptionHandlerFilter;
 import com.teamip.heyhello.global.redis.TokenService;
 import com.teamip.heyhello.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil, tokenService, userDetailsService);
     }
 
     @Bean
@@ -87,6 +88,7 @@ public class WebSecurityConfig {
                         request -> request.anyRequest().permitAll()
                 )
                 .addFilter(corsFilter())
+                .addFilterBefore(new ExceptionHandlerFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 

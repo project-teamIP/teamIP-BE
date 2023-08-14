@@ -3,7 +3,7 @@ package com.teamip.heyhello.domain.user.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.teamip.heyhello.domain.memo.entity.Memo;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
-import com.teamip.heyhello.domain.user.dto.UpdateUserInfoDto;
+import com.teamip.heyhello.domain.user.dto.UpdateProfileDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -64,7 +65,7 @@ public class User {
 
 
     @Builder
-    private User(String loginId, String password, String nickname, String image) {
+    private User(String loginId, String password, String nickname, String image, String country, String gender, String language, String interest) {
         this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
@@ -72,10 +73,15 @@ public class User {
         this.isKakao = Boolean.FALSE;
         this.isGoogle = Boolean.FALSE;
         this.isLocked = Boolean.FALSE;
-        this.country = "Default";
-        this.gender = "Default";
-        this.interest = "Default";
+        this.country = defaultValue(country);
+        this.gender = defaultValue(gender);
+        this.interest = defaultValue(interest);
+        this.language = defaultValue(language);
         this.image = image;
+    }
+
+    private String defaultValue(String value) {
+        return value == null ? "Default" : value;
     }
 
     public static User of(SignupRequestDto signupRequestDto, String encodedPassword, String defaultImageUrl) {
@@ -84,15 +90,12 @@ public class User {
                 .loginId(signupRequestDto.getLoginId())
                 .password(encodedPassword)
                 .nickname(signupRequestDto.getNickname())
+                .country(signupRequestDto.getCountry())
+                .gender(signupRequestDto.getGender())
+                .language(signupRequestDto.getLanguage())
+                .interest(signupRequestDto.getInterest())
                 .image(defaultImageUrl)
                 .build();
-    }
-
-    public void initializeUserInfo(UpdateUserInfoDto updateUserInfoDto) {
-        this.country = updateUserInfoDto.getCountry();
-        this.gender = updateUserInfoDto.getGender();
-        this.language = updateUserInfoDto.getLanguage();
-        this.interest = updateUserInfoDto.getInterest();
     }
 
     public void disableUserAccount() {
@@ -101,5 +104,13 @@ public class User {
 
     public void modifyProfileImage(String imageUrl) {
         this.image = imageUrl;
+    }
+
+    public void update(UpdateProfileDto updateProfileDto) {
+        this.nickname = Optional.ofNullable(updateProfileDto.getNickname()).orElse(this.nickname);
+        this.language = Optional.ofNullable(updateProfileDto.getLanguage()).orElse(this.language);
+        this.gender = Optional.ofNullable(updateProfileDto.getGender()).orElse(this.gender);
+        this.country = Optional.ofNullable(updateProfileDto.getCountry()).orElse(this.country);
+        this.interest = Optional.ofNullable(updateProfileDto.getInterest()).orElse(interest);
     }
 }

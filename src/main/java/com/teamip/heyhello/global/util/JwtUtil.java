@@ -1,5 +1,7 @@
 package com.teamip.heyhello.global.util;
 
+import com.teamip.heyhello.domain.user.entity.User;
+import com.teamip.heyhello.domain.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 
@@ -18,18 +21,11 @@ import java.util.Date;
 @Slf4j(topic = "JwtUtil")
 public class JwtUtil implements InitializingBean {
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTHORIZATION_HEADER = "AccessToken";
 
     public static final String BEARER_PREFIX = "Bearer ";
 
-    // 1000 = 1초
-    // 1000 * 60 = 60초 = 1분
-    // 1000 * 60 * 60 = 3600초 = 1시간
-    // 1000 * 60 * 60 * 24 = 24시간 = 하루
-
     private static final long ATK_TIME = 1000L * 60 * 60;
-
-//    private static final long RTK_TIME = 1000L * 60 * 60 * 24;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -37,6 +33,12 @@ public class JwtUtil implements InitializingBean {
     private Key key;
 
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+
+    private final UserRepository userRepository;
+
+    public JwtUtil(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public void afterPropertiesSet() {
@@ -59,7 +61,7 @@ public class JwtUtil implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.error("토큰만료");
+            log.error("token expired");
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException |
                  IllegalArgumentException e) {
             log.error("validate token failed");
@@ -81,6 +83,11 @@ public class JwtUtil implements InitializingBean {
                 .getBody();
     }
 
+    public String getLoginIdFromToken(String token) {
+        validateToken(token);
+        return getUserInfoFromToken(token).getSubject();
+    }
+
     public String substringToken(String token) {
         if(StringUtils.hasText(token) && token.startsWith(BEARER_PREFIX)) {
             return token.substring(7);
@@ -89,7 +96,36 @@ public class JwtUtil implements InitializingBean {
         return null;
     }
 
+    public long getRemainingSeconds(String jwt) {
+        String token = substringToken(jwt);
+        Jws<Claims> jws = Jwts.parserBuilder()
+                                .setSigningKey(key)
+                                .build()
+                                .parseClaimsJws(token);
+        Claims claims = jws.getBody();
 
+        long expTime = claims.get("exp", Long.class);
+        long currentTime = Instant.now().getEpochSecond();
 
+        return expTime - currentTime;
+    }
+
+    public User getUserFromToken(String tokenValue){
+
+        String token = substringToken(tokenValue);
+
+        if(!validateToken(token)){
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+
+        Claims info = getUserInfoFromToken(token);
+
+        String username = info.getSubject();
+
+        User user = userRepository.findByLoginId(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return user;
+    }
 }
 

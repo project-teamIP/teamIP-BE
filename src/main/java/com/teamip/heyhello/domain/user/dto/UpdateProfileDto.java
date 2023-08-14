@@ -5,9 +5,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UpdateUserInfoDto {
-    private String country;
-    private String gender;
+public class UpdateProfileDto {
+    private String nickname;
     private String language;
+    private String gender;
+    private String country;
     private String interest;
 }

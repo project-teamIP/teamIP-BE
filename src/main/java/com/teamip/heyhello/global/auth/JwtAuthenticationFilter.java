@@ -2,6 +2,7 @@ package com.teamip.heyhello.global.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamip.heyhello.domain.user.dto.LoginRequestDto;
+import com.teamip.heyhello.domain.user.dto.LoginResponseDto;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
@@ -57,7 +58,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setHeader("AccessToken", accessToken);
         response.setHeader("RefreshToken", refreshToken);
 
-        StatusResponseDto responseDto = new StatusResponseDto(HttpStatus.OK, "로그인 성공");
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        LoginResponseDto responseDto = new LoginResponseDto(user);
+
         returnStatusResponse(response, responseDto, HttpStatus.OK);
     }
 
@@ -72,7 +77,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private void isUserBlocked(String loginId) throws IOException, IllegalAccessException {
         User user = userRepository.findByLoginId(loginId).orElseThrow(
-                () -> new IOException("")
+                () -> new IOException()
         );
         if(Boolean.TRUE.equals(user.getIsLocked())) {
             throw new IllegalAccessException();
