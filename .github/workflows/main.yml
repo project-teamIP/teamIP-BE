@@ -22,7 +22,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Give x permissions to gradlew script
+      - name: Setup MySql
+        uses: samin/mysql-action@v1
+        with:
+          character set server: 'utf8'
+          mysql database: heyhello
+          mysql user: ${{ secrets.MYSQL_USERNAME }}
+          mysql password: ${{ secrets.MYSQL_PASSWORD }}
+
+      - name: Give exec permissions to gradlew script
         run: chmod +x gradlew
 
       - name: Build with Gradle
