@@ -22,17 +22,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Start MySQL
-        uses: samin/mysql-action@v1.3
-        with:
-          host port: 3306
-          container port: 3306
-          mysql version: '8.0'
-          character set server: 'utf8'
-          mysql database: 'heyhello'
-          mysql user: ${{ secrets.MYSQL_USERNAME }}
-          mysql password: ${{ secrets.MYSQL_PASSWORD }}
           
       - name: Setup Redis
         uses: zhulik/redis-action@1.1.0
