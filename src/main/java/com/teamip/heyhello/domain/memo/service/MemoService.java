@@ -8,14 +8,12 @@ import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.util.JwtUtil;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +31,7 @@ public class MemoService {
     // 메모 작성 메서드
     public MemoResponseDto createMemo(String tokenValue, MemoRequestDto requestDto){
         // token에서 현재 user 조회
-        User currentUser = getUserFromToken(tokenValue);
+        User currentUser = jwtUtil.getUserFromToken(tokenValue);
 
         // partnerLoginId로 상대방 user 정보 조회
         User partnerUser = userRepository.findByNickname(requestDto.getPartnerNickname())
@@ -54,7 +52,7 @@ public class MemoService {
     // 사용자가 작성한 메모 목록 조회 메서드
     public List<MemoResponseDto> getMemoList(String tokenValue){
         // token에서 현재 user 조회
-        User currentUser = getUserFromToken(tokenValue);
+        User currentUser = jwtUtil.getUserFromToken(tokenValue);
 
         // 현재 유저의 ID 가져오기
         Long userId = currentUser.getId();
@@ -70,7 +68,7 @@ public class MemoService {
     // 사용자가 작성한 특정 메모 조회 메서드
     public MemoResponseDto getMemoById(String tokenValue, Long id){
         // token에서 현재 user 조회
-        User currentUser = getUserFromToken(tokenValue);
+        User currentUser = jwtUtil.getUserFromToken(tokenValue);
 
         // 해당 메모 존재하는지 확인
         Memo memo = findMemo(id);
@@ -86,7 +84,7 @@ public class MemoService {
     // 메모를 5개씩 페이징으로 조회하는 메서드
     public Page<Memo> findMemosWithPaging(String tokenValue, int page, int size) {
         // token에서 현재 user 조회
-        User currentUser = getUserFromToken(tokenValue);
+        User currentUser = jwtUtil.getUserFromToken(tokenValue);
 
         // 현재 유저의 ID 가져오기
         Long userId = currentUser.getId();
@@ -101,7 +99,7 @@ public class MemoService {
     @Transactional
     public MemoResponseDto updateMemo(String tokenValue, Long id, MemoRequestDto requestDto){
         // token에서 현재 user 조회
-        User currentUser = getUserFromToken(tokenValue);
+        User currentUser = jwtUtil.getUserFromToken(tokenValue);
 
         // 해당 메모 존재하는지 확인
         Memo memo = findMemo(id);
@@ -119,7 +117,7 @@ public class MemoService {
     // 선택한 메모 삭제 메서드
     public StatusResponseDto deleteMemo(String tokenValue, Long id){
         // token에서 현재 user 조회
-        User currentUser = getUserFromToken(tokenValue);
+        User currentUser = jwtUtil.getUserFromToken(tokenValue);
 
         // 해당 메모 존재하는지 확인
         Memo memo = findMemo(id);
@@ -141,28 +139,5 @@ public class MemoService {
     Memo findMemo(Long id){
         return memoRepository.findById(id).orElseThrow(()->
                 new IllegalArgumentException("선택한 메모가 존재하지 않습니다."));
-    }
-
-    // token을 가공하고 해당 user 객체를 반환하는 메서드
-    public User getUserFromToken(String tokenValue){
-        // JWT 토큰 substring
-        String token = jwtUtil.substringToken(tokenValue);
-
-        // 토큰 검증
-        if(!jwtUtil.validateToken(token)){
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        // 토큰에서 사용자 정보 가져오기
-        Claims info = jwtUtil.getUserInfoFromToken(token);
-
-        // username 가져오기 (username = loginId)
-        String username = info.getSubject();
-
-        // username으로 현재 사용자 조회하기
-        User user = userRepository.findByLoginId(username)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        return user;
     }
 }
