@@ -8,6 +8,7 @@ on:
 
 env:
   S3_BUCKET_NAME: heyhi-deploy
+  JASYPT_ENCRYPTOR_KEY: ${{ secrets.JASYPT_ENCRYPTOR_KEY }}
 
 jobs:
   build:
