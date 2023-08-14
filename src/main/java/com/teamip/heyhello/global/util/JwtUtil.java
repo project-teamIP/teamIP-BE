@@ -23,14 +23,7 @@ public class JwtUtil implements InitializingBean {
 
     public static final String BEARER_PREFIX = "Bearer ";
 
-    // 1000 = 1초
-    // 1000 * 60 = 60초 = 1분
-    // 1000 * 60 * 60 = 3600초 = 1시간
-    // 1000 * 60 * 60 * 24 = 24시간 = 하루
-
     private static final long ATK_TIME = 1000L * 60 * 60;
-
-//    private static final long RTK_TIME = 1000L * 60 * 60 * 24;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -60,7 +53,7 @@ public class JwtUtil implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.error("토큰만료");
+            log.error("token expired");
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException |
                  IllegalArgumentException e) {
             log.error("validate token failed");

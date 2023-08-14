@@ -33,7 +33,7 @@ public class TokenService {
 
     public StatusResponseDto getAtkByRtk(UserDetailsImpl userDetails, String rtk, HttpServletResponse response) {
         String loginId = userDetails.getUsername();
-        RefreshToken refreshToken = refreshTokenRepository.findByLoginId(loginId).orElseThrow(
+        RefreshToken refreshToken = refreshTokenRepository.findByLoginIdAndRefreshToken(loginId, rtk).orElseThrow(
                 () -> new RuntimeException("발급된 적 없거나 만료된 토큰입니다")
         );
         if (!loginId.equals(refreshToken.getLoginId())) {
