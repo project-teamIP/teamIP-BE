@@ -1,5 +1,7 @@
 package com.teamip.heyhello.global.util;
 
+import com.teamip.heyhello.domain.user.entity.User;
+import com.teamip.heyhello.domain.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -38,6 +40,12 @@ public class JwtUtil implements InitializingBean {
     private Key key;
 
     private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+
+    private final UserRepository userRepository;
+
+    public JwtUtil(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public void afterPropertiesSet() {
@@ -109,5 +117,22 @@ public class JwtUtil implements InitializingBean {
         return expTime - currentTime;
     }
 
+    public User getUserFromToken(String tokenValue){
+
+        String token = substringToken(tokenValue);
+
+        if(!validateToken(token)){
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+
+        Claims info = getUserInfoFromToken(token);
+
+        String username = info.getSubject();
+
+        User user = userRepository.findByLoginId(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return user;
+    }
 }
 

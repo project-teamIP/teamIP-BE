@@ -10,6 +10,7 @@ import com.teamip.heyhello.domain.user.service.BuddyService;
 import com.teamip.heyhello.domain.user.service.UserService;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
+import com.teamip.heyhello.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -34,8 +35,7 @@ public class UserController {
     private final KakaoService kakaoService;
     private final GoogleService googleService;
     private final BuddyService buddyService;
-    private final MemoService memoService;
-
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
     public ResponseEntity<StatusResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) {
@@ -104,7 +104,7 @@ public class UserController {
     @GetMapping("/login/kakao")
     public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         String token = kakaoService.kakaoLogin(code);
-        User user = memoService.getUserFromToken(token);
+        User user = jwtUtil.getUserFromToken(token);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("AccessToken", token);
@@ -115,7 +115,7 @@ public class UserController {
     @GetMapping("/login/google")
     public ResponseEntity<LoginResponseDto> googleLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         String token = googleService.googleLogin(code);
-        User user = memoService.getUserFromToken(token);
+        User user = jwtUtil.getUserFromToken(token);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("AccessToken", token);
