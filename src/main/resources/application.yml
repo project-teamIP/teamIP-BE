@@ -61,3 +61,6 @@ secret:
 jasypt:
   encryptor:
     password: ${JASYPT_ENCRYPTOR_KEY}
+
+socket:
+  port: 5004
