@@ -11,12 +11,14 @@ import com.teamip.heyhello.domain.socketio.entity.UserList;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class IoMatchService {
     private final UserList userList;
     private final UserRepository userRepository;
@@ -24,6 +26,7 @@ public class IoMatchService {
 
     public synchronized void findMatch(SocketIOServer server, SocketIOClient client, RequestUserDto requestUserDto) {
         User user = userRepository.findById(requestUserDto.getUserId()).orElseThrow(() -> new NullPointerException("없는 유저입니다."));
+       log.info("현재 해당 서버 세션 수 = {}", server.getAllClients().size());
         if (userList.getLists().isEmpty()) {
             addUserToQueueIfEmpty(client, user);
             return;
@@ -49,6 +52,7 @@ public class IoMatchService {
     }
 
     private void searchUserFromCondition(SocketIOServer server, SocketIOClient client, User requestUser) {
+
         for (WaitUserDto waitUserDto : userList.getLists().values()) {
             if (isNotSameLanguage(waitUserDto.getUser(), requestUser) && isNotBlockedEach(waitUserDto.getUser(), requestUser)) {
                 userList.getLists().remove(waitUserDto.getSessionId());

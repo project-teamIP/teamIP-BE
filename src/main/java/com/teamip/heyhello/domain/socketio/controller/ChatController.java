@@ -29,6 +29,7 @@ public class ChatController {
         ioMatchService.findMatch(server, client, requestUserDto);
     }
 
+
     @SocketMapping(endpoint = SocketProperty.OFFER_KEY, requestCls = String.class)
     public void sendOfferMessage(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException {
         ioMessageService.sendOfferMessage(server, message);
@@ -36,7 +37,7 @@ public class ChatController {
 
     @SocketMapping(endpoint = SocketProperty.ANSWER_KEY, requestCls = String.class)
     public void sendAnswerMessage(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException {
-        ioMessageService.sendAnswerMessage(server, message);
+       ioMessageService.sendAnswerMessage(server, message);
     }
 
 

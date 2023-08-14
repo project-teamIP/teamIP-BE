@@ -1,4 +1,4 @@
-package com.teamip.heyhello.domain.socketio.socket.security;
+package com.teamip.heyhello.domain.socketio.socket;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
@@ -16,10 +16,6 @@ public class WebSocketConnectController {
     private final UserRepository userRepository;
 
     public void onConnect(SocketIOClient client) {
-        log.info("onConnect 발동@@@@@@@@@@@@");
-   //     String token = client.getHandshakeData().getSingleUrlParam("authorization");
- //       client.set(AuthenticationProperty.USER_KEY, jwtUtil.validateToken(token));
-   //     userRepository.findById(client.get(AuthenticationProperty.USER_KEY)).orElse(null);
     }
 
 }

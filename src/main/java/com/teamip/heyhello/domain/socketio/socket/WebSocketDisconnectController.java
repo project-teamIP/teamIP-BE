@@ -1,6 +1,7 @@
-package com.teamip.heyhello.domain.socketio.socket.security;
+package com.teamip.heyhello.domain.socketio.socket;
 
 import com.corundumstudio.socketio.SocketIOClient;
+import com.teamip.heyhello.domain.socketio.service.IoMatchService;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,6 @@ public class WebSocketDisconnectController {
 
     @Transactional
     public void onDisConnect(SocketIOClient client) {
-        log.info("onDisconnect 발동@@@@@@@@@@@@@@@@");
         client.disconnect();
     }
 
