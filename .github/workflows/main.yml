@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup MySql
-        uses: samin/mysql-action@v1
+        uses: mirrormutth/mysql-action@v1.1
         with:
           character set server: 'utf8'
           mysql database: heyhello
