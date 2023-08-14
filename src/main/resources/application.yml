@@ -9,9 +9,12 @@ spring:
     defer-datasource-initialization: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/heyhello
-    username: ENC(APd+C240C+xaqqcXugQTqJPjWOBbNBLNZOqrg9zSa0c7dQuH1B2XkuyqfHo4UT4G)
-    password: ENC(Cqvayc/eIe71LrPtNRpl/xmRYRak41+TXdYDpqkp4pPDihZjZ4C4mviUwFP8pYFW)
+    url: ENC(ZqkXSCTCBBZblH0KDz1lfpe6txR5x32nYaoqE0B2+RyWggDhHp5tljBbSWFo+kQG6o9Xt5JtGADndRvKtlbMTq7jOckhrXt5K04xW0GY0Wwy42QlGir+3S9PI7x+d7qDoTu/l1iGht6qMP19PEz37PFvinrD4JJsBg+Q4JtkIYQ=)
+    username: ENC(e96U8NyR2TMbFa4r/t5+gr9eqEjeNkchfNOpsRL25/2dHB/xPha87nWz9ywAcidx)
+    password: ENC(J6les/JCKYwtGg5O/YB2zstuR4c2MAWgGW42rJUoCE/OVGzJeOXrgMb9IP2+JrkS)
+#    url: jdbc:mysql://localhost:3306/heyhello
+#    username: ENC(APd+C240C+xaqqcXugQTqJPjWOBbNBLNZOqrg9zSa0c7dQuH1B2XkuyqfHo4UT4G)
+#    password: ENC(Cqvayc/eIe71LrPtNRpl/xmRYRak41+TXdYDpqkp4pPDihZjZ4C4mviUwFP8pYFW)
   mail:
     host: smtp.gmail.com
     port: 587

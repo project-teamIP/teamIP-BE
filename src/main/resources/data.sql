@@ -9,4 +9,9 @@ VALUES (false, false, false, 50, 'KOREAN', 'SOUTH_KOREA', 'test01@gmail.com', '�
        (false, false, false, 50, 'KOREAN', 'US', 'test06@gmail.com', '유저06', '$2a$10$t.gFil4BXaDsbChhewyUvujK2SuT3I1bIcZIc4B6/1l7MY2X5b3Z.', 'BOOK', 'MALE', 'https://heyannyeoung.s3.ap-northeast-2.amazonaws.com/profile2.png'),
        (false, false, false, 50, 'KOREAN', 'US', 'test07@gmail.com', '유저07', '$2a$10$t.gFil4BXaDsbChhewyUvujK2SuT3I1bIcZIc4B6/1l7MY2X5b3Z.', 'BOOK', 'FEMALE', 'https://heyannyeoung.s3.ap-northeast-2.amazonaws.com/profile1.png');
 
-
+INSERT INTO buddy (created_at, receiver_id, sender_id)
+VALUES (CURRENT_TIMESTAMP, 2, 1),
+        (CURRENT_TIMESTAMP,3, 1),
+        (CURRENT_TIMESTAMP,4, 1),
+        (CURRENT_TIMESTAMP,5, 1),
+        (CURRENT_TIMESTAMP,6, 1);
