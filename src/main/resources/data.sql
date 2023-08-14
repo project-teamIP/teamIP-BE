@@ -19,3 +19,10 @@ VALUES (1, '2023-08-15 00:40:20.275486', '2023-08-15 00:40:20.275486','미국인
        (6, '2023-08-10 10:40:20.275486', '2023-08-15 00:40:20.275486','제목6', '내용6', 1, '유저07', 'https://heyannyeoung.s3.ap-northeast-2.amazonaws.com/partner1.png'),
        (7, '2023-08-12 10:38:20.275486', '2023-08-15 00:40:20.275486','일본인과~', '곤니치와', 1, '유저07', 'https://heyannyeoung.s3.ap-northeast-2.amazonaws.com/partner1.png'),
        (8, '2023-08-12 00:20:20.275486', '2023-08-15 00:40:20.275486','언어공부', '좋은표현많이배움', 1, '유저07', 'https://heyannyeoung.s3.ap-northeast-2.amazonaws.com/partner1.png');
+
+INSERT INTO buddy (created_at, receiver_id, sender_id)
+VALUES (CURRENT_TIMESTAMP, 2, 1),
+        (CURRENT_TIMESTAMP,3, 1),
+        (CURRENT_TIMESTAMP,4, 1),
+        (CURRENT_TIMESTAMP,5, 1),
+        (CURRENT_TIMESTAMP,6, 1);
