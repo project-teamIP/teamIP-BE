@@ -1,6 +1,7 @@
 package com.teamip.heyhello.global.redis;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -65,13 +66,15 @@ public class RefreshTokenRepository {
     public int countRefreshTokens() {
         Set<String> keys = redisTemplate.keys("*");
         int count = 0;
-
         for (String key : keys) {
-            HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-            Object refreshToken = hashOperations.get(key, RE_TKN);
+            DataType keyType = redisTemplate.type(key);
+            if (keyType == DataType.HASH) {
+                HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+                Object refreshToken = hashOperations.get(key, RE_TKN);
 
-            if (refreshToken != null) {
-                count++;
+                if (refreshToken != null) {
+                    count++;
+                }
             }
         }
 
