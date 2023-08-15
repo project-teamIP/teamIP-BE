@@ -48,9 +48,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::048045876961:oidc-provider/token.actions.githubusercontent.com
+          role-to-assume: arn:aws:iam::048045876961:role/only-deploy-role
           role-session-name: 'github-actions-deployer'
-          aws-region: ap-northeast-2
+          aws-region: 'ap-northeast-2'
 
       - name: Uplaod to S3
         run: aws s3 cp --region ap-northeast-2 ./heyhi.zip s3://S3_BUCKET_NAME/heyhi.zip
