@@ -53,5 +53,5 @@ jobs:
           aws-region: 'ap-northeast-2'
 
       - name: Uplaod to S3
-        run: aws s3 cp --region ap-northeast-2 ./heyhi.zip s3://S3_BUCKET_NAME/heyhi.zip
+        run: aws s3 cp --region ap-northeast-2 ./heyhi.zip s3://S3_BUCKET_NAME/
         
