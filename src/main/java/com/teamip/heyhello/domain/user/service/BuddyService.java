@@ -62,7 +62,11 @@ public class BuddyService {
         Pageable newPageable = PageRequest.of(newPage, pageable.getPageSize(), pageable.getSort());
         Page<Buddy> buddyPage = buddyRepository.findBySender(sender, newPageable);
         List<BuddyResponseDto> buddyResponseDtos = buddyPage.getContent().stream().map(
-                buddy -> new BuddyResponseDto(buddy.getReceiver().getNickname(), buddy.getReceiver().getLoginId())
+                buddy -> BuddyResponseDto.builder()
+                        .image(buddy.getReceiver().getImage())
+                        .loginId(buddy.getReceiver().getLoginId())
+                        .nickname(buddy.getReceiver().getNickname())
+                        .build()
         ).toList();
 
         return new PageImpl<>(buddyResponseDtos, pageable, buddyPage.getTotalElements());

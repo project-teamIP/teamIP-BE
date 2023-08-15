@@ -17,7 +17,7 @@ public class AuthController {
 
     private final TokenService tokenService;
 
-    @GetMapping("/auth/re-access")
+    @PostMapping("/auth/re-access")
     public ResponseEntity<StatusResponseDto> getAccessTokenByRefreshToken(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                           @RequestHeader("RefreshToken") String rtk,
                                                                           HttpServletResponse response) {
