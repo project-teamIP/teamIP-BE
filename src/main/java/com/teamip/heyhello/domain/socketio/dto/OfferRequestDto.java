@@ -4,26 +4,25 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Getter
 @NoArgsConstructor
-public class OfferDto {
+public class OfferRequestDto {
 
     private String userId;
     private String nickname;
     private String country;
     private String roomId;
-    private String matchInfo;
-    private String connection;
+    private String type;
+    private String sdp;
+
 
     @Builder
-    public OfferDto(String userId, String nickname, String country, String roomId, String matchInfo, String connection) {
+    public OfferRequestDto(String userId, String nickname, String country, String roomId, String type, String sdp) {
         this.userId = userId;
         this.nickname = nickname;
         this.country = country;
         this.roomId = roomId;
-        this.matchInfo = matchInfo;
-        this.connection = connection;
+        this.type = type;
+        this.sdp = sdp;
     }
 }

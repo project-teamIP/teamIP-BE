@@ -4,22 +4,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Getter
 @NoArgsConstructor
 public class IceDto {
 
-    private String userId;
     private String roomId;
-    private String ice;
-    private String connection;
+    private String candidate;
 
     @Builder
-    public IceDto(String userId, String roomId, String ice, String connection) {
-        this.userId = userId;
+    public IceDto(String roomId, String candidate) {
         this.roomId = roomId;
-        this.ice = ice;
-        this.connection = connection;
+        this.candidate = candidate;
     }
 }
