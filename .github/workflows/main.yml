@@ -7,15 +7,12 @@ on:
     branches: [ "develop" ]
 
 env:
-  S3_BUCKET_NAME: heyhi-github-actions-s3
+  S3_BUCKET_NAME: heyhi-github-actions-bucket
   JASYPT_ENCRYPTOR_KEY: ${{ secrets.JASYPT_ENCRYPTOR_KEY }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - uses: actions/checkout@v3
@@ -44,12 +41,11 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::048045876961:role/only-deploy-role
-          role-session-name: 'deployer'
-          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          # role-to-assume: arn:aws:iam::048045876961:role/only-deploy-role
+          # role-session-name: 'deployer'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: 'ap-northeast-2'
 
       - name: Uplaod to S3
         run: aws s3 cp --region ap-northeast-2 ./heyhi.zip s3://S3_BUCKET_NAME/
-        
