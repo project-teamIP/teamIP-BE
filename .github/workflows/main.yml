@@ -7,6 +7,9 @@ on:
     branches: [ "develop" ]
 
 env:
+  PROJECT_NAME: heyhi-project
+  CODE_DEPLOY_APP_NAME: ${{ CODE_DEPLOY_APP_NAME }}
+  DEPLOYMENT_GROUP_NAME: ${{ DEPLOYMENT_GROUP_NAME }}
   S3_BUCKET_NAME: heyhi-github-actions-bucket
   JASYPT_ENCRYPTOR_KEY: ${{ secrets.JASYPT_ENCRYPTOR_KEY }}
 
@@ -29,16 +32,16 @@ jobs:
       - name: Give exec permissions to gradlew script
         run: chmod +x gradlew
 
-      - name: Build with Gradle
+      - name: Build With Gradle
         run: ./gradlew clean build -x test
     
-      - name: Make directory
+      - name: Make Directory
         run: mkdir -p deploy
 
       - name: Compress /deploy
         run: zip -r ./heyhi.zip .
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -47,3 +50,10 @@ jobs:
 
       - name: Uplaod to S3
         run: aws s3 cp --region ap-northeast-2 ./heyhi.zip s3://$S3_BUCKET_NAME/
+
+      - name: Code Deploy to EC2 Instance
+        run: aws deploy create-deployment
+          --application-name $CODE_DEPLOY_APP_NAME
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name $DEPLOYMENT_GROUP_NAME
+          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/heyhi.zip
