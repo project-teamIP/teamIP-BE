@@ -10,6 +10,10 @@ env:
   S3_BUCKET_NAME: heyhi-deploy
   JASYPT_ENCRYPTOR_KEY: ${{ secrets.JASYPT_ENCRYPTOR_KEY }}
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -45,6 +49,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::048045876961:user/my-github-actions-iam
+          role-session-name: 'tester'
           aws-region: ap-northeast-2
 
       - name: Uplaod to S3
