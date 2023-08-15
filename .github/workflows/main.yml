@@ -48,8 +48,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::048045876961:user/my-github-actions-iam
-          role-session-name: 'tester'
+          role-to-assume: arn:aws:iam::048045876961:oidc-provider/token.actions.githubusercontent.com
+          role-session-name: 'github-actions-deployer'
           aws-region: ap-northeast-2
 
       - name: Uplaod to S3
