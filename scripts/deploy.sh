@@ -10,7 +10,7 @@ JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 DEPLOY_LOG="$REPOSITORY/deploy.log"
 
 function get_pid() {
-  $(pgrep -f $APP_NAME)
+  ps aux | grep java | grep $APP_NAME | grep -v grep | awk '{print $2}'
 }
 
 CURRENT_PID=$(get_pid)
