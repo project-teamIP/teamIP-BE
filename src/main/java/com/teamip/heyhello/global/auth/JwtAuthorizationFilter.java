@@ -34,8 +34,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtil.getSubstringTokenFromRequest(request);
         if (token != null) {
-            boolean isAuthenticated = tryAuthentication(token, response);
-            if(isAuthenticated) {
+            boolean isAuthenticated = tryAuthentication(token, request, response);
+            if (isAuthenticated) {
                 filterChain.doFilter(request, response);
             }
         } else {
@@ -43,7 +43,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean tryAuthentication(String token, HttpServletResponse response) throws IOException {
+    private boolean tryAuthentication(String token, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (tokenService.isBlackList(token)) {
             StatusResponseDto statusResponseDto =
                     StatusResponseDto.builder()
@@ -58,8 +58,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return false;
         }
 
-        Claims userInfo = jwtUtil.getUserInfoFromToken(token);
-        String email = userInfo.getSubject();
+        Claims userInfo;
+        String email;
+
+        if (request.getRequestURI().equals("/auth/re-access")) {
+            userInfo = jwtUtil.getUserInfoFromTokenWithoutValidate(token);
+            email = userInfo.getSubject();
+        } else {
+            userInfo = jwtUtil.getUserInfoFromToken(token);
+            email = userInfo.getSubject();
+        }
+
         try {
             setAuthentication(email);
         } catch (Exception e) {
