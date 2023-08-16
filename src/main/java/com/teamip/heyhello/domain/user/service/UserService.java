@@ -1,13 +1,11 @@
 package com.teamip.heyhello.domain.user.service;
 
-import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
-import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
-import com.teamip.heyhello.domain.user.dto.UpdateProfileDto;
-import com.teamip.heyhello.domain.user.dto.UrlResponseDto;
+import com.teamip.heyhello.domain.user.dto.*;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
+import com.teamip.heyhello.global.redis.RefreshTokenRepository;
 import com.teamip.heyhello.global.s3.S3UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final S3UploadService s3UploadService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public StatusResponseDto signup(SignupRequestDto signupRequestDto) {
         String defaultUrl = setRandomDefaultImageUrl();
@@ -151,5 +150,9 @@ public class UserService {
         );
     }
 
-
+    public int countActiveUser(){
+        int activeUser = 0;
+        activeUser = refreshTokenRepository.countRefreshTokens();
+        return activeUser;
+    }
 }
