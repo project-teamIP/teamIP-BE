@@ -18,10 +18,10 @@ else
   echo "[$TIME_NOW] > PID=$CURRENT_PID 종료." >> $DEPLOY_LOG
   kill -15 $CURRENT_PID
   sleep 10
-  if ps -f $CURRENT_PID > /dev/null
-  then
-    echo "[$TIME_NOW] > 프로세스가 정상정료되지 않으므로 강제종료 합니다." >> $DEPLOY_LOG
-    kill -9 $CURRENT_PID
+  # if ps -f $CURRENT_PID > /dev/null
+  # then
+  #   echo "[$TIME_NOW] > 프로세스가 정상정료되지 않으므로 강제종료 합니다." >> $DEPLOY_LOG
+  #   kill -9 $CURRENT_PID
 fi
 
 echo "[$TIME_NOW] > $JAR_PATH 배포" >> $DEPLOY_LOG
