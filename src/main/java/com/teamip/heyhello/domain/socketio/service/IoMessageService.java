@@ -18,26 +18,11 @@ public class IoMessageService {
     private final ObjectMapper objectMapper;
 
     public void sendOfferMessage(SocketIOServer server, SocketIOClient client, String message) throws JsonProcessingException {
-//        OfferRequestDto offerRequestDto = objectMapper.readValue(message, OfferRequestDto.class);
-//        OfferAndAnswerDto offerAndAnswerDto = OfferAndAnswerDto.builder().type(offerRequestDto.getType()).sdp(offerRequestDto.getSdp()).build();
-//        server.getRoomOperations(offerRequestDto.getRoomId()).sendEvent(SocketProperty.OFFER_KEY, client ,OfferResponseDto.builder()
-//                .roomId(offerRequestDto.getRoomId())
-//                .nickname(offerRequestDto.getNickname())
-//                .country(offerRequestDto.getCountry())
-//                .userId(offerRequestDto.getUserId())
-//                .offer(offerAndAnswerDto)
-//                .build());
         OfferAndAnswerDto offer = objectMapper.readValue(message, OfferAndAnswerDto.class);
         server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.OFFER_KEY, client, offer);
     }
 
     public void sendAnswerMessage(SocketIOServer server, SocketIOClient client, String message) throws JsonProcessingException {
-//        AnswerRequestDto answerRequestDto = objectMapper.readValue(message, AnswerRequestDto.class);
-//        OfferAndAnswerDto answerDto = OfferAndAnswerDto.builder().type(answerRequestDto.getType()).sdp(answerRequestDto.getSdp()).build();
-//        server.getRoomOperations(answerRequestDto.getRoomId()).sendEvent(SocketProperty.ANSWER_KEY, client, AnswerResponseDto.builder()
-//                .userId(answerRequestDto.getUserId())
-//                .answer(answerDto)
-//                .build());
         OfferAndAnswerDto answer = objectMapper.readValue(message, OfferAndAnswerDto.class);
         server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.ANSWER_KEY, client, answer);
     }

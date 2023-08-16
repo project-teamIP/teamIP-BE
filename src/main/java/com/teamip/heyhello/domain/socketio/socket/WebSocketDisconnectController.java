@@ -16,7 +16,6 @@ public class WebSocketDisconnectController {
 
     @Transactional
     public void onDisConnect(SocketIOClient client) {
-        client.disconnect();
     }
 
 }
