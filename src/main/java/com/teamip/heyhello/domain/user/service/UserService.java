@@ -155,4 +155,22 @@ public class UserService {
         activeUser = refreshTokenRepository.countRefreshTokens();
         return activeUser;
     }
+
+    @Transactional
+    public StatusResponseDto rateCleanPoint(User user, String partnerNickname, Long point) {
+
+        if(user.getNickname().equals(partnerNickname)){
+            throw new IllegalArgumentException("본인의 점수는 매길 수 없습니다.");
+        }
+
+        User partner = userRepository.findByNickname(partnerNickname).orElseThrow(
+                () -> new RuntimeException("존재하지 않는 사용자입니다.")
+        );
+        partner.updateCleanPoint(point);
+
+        return StatusResponseDto.builder()
+                .status(HttpStatus.OK)
+                .message(partnerNickname+"님의 점수를 등록했습니다!")
+                .build();
+    }
 }

@@ -127,4 +127,11 @@ public class UserController {
     public ResponseEntity<ActiveUserResponseDto> countActiveUser(){
         return ResponseEntity.ok().body(new ActiveUserResponseDto(userService.countActiveUser()));
     }
+
+    @PutMapping("/point")
+    public ResponseEntity<StatusResponseDto> rateCleanPoint(@RequestHeader("AccessToken") String tokenValue,
+                                                            @RequestBody CleanPointRequestDto requestDto){
+        User user = jwtUtil.getUserFromToken(tokenValue);
+        return ResponseEntity.ok().body(userService.rateCleanPoint(user, requestDto.getPartnerNickname(), requestDto.getPoint()));
+    }
 }

@@ -113,4 +113,12 @@ public class User {
         this.country = Optional.ofNullable(updateProfileDto.getCountry()).orElse(this.country);
         this.interest = Optional.ofNullable(updateProfileDto.getInterest()).orElse(interest);
     }
+
+    public void updateCleanPoint(Long point) {
+        if (point < -10 || point > 10) {
+            throw new IllegalArgumentException("매너 점수는 -10 ~ +10 사이로 입력해주세요.");
+        } else {
+            this.cleanPoint = cleanPoint + point;
+        }
+    }
 }
