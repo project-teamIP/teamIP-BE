@@ -122,4 +122,9 @@ public class UserController {
 
         return ResponseEntity.ok().headers(headers).body(new LoginResponseDto(user));
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<ActiveUserResponseDto> countActiveUser(){
+        return ResponseEntity.ok().body(new ActiveUserResponseDto(userService.countActiveUser()));
+    }
 }
