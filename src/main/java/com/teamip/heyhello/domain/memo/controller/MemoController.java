@@ -40,11 +40,11 @@ public class MemoController {
         return memoService.getMemoById(tokenValue, id);
     }
 
-    // 사용자가 작성한 메모 5개씩 페이징 조회 API
+    // 사용자가 작성한 메모 6개씩 페이징 조회 API
     @GetMapping("/memos")
     public ResponseEntity<Page<Memo>> getMemos(@RequestHeader("AccessToken") String tokenValue,
                                                @RequestParam(value = "page", defaultValue = "1") int page,
-                                               @RequestParam(value = "size", defaultValue = "5") int size) {
+                                               @RequestParam(value = "size", defaultValue = "6") int size) {
         // 페이지 번호가 1부터 시작
         Page<Memo> memoPage = memoService.findMemosWithPaging(tokenValue, page-1, size);
         return new ResponseEntity<>(memoPage, HttpStatus.OK);
