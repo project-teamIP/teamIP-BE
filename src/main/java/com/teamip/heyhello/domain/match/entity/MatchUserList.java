@@ -1,6 +1,6 @@
-package com.teamip.heyhello.domain.socketio.entity;
+package com.teamip.heyhello.domain.match.entity;
 
-import com.teamip.heyhello.domain.socketio.dto.WaitUserDto;
+import com.teamip.heyhello.domain.match.dto.WaitUserDto;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;

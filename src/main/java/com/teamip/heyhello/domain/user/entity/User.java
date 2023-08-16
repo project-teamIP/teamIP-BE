@@ -38,7 +38,7 @@ public class User {
     @Column(nullable = false)
     private Boolean isGoogle;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String language;
 
     @Column(nullable = false)

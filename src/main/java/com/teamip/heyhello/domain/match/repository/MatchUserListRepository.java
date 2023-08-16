@@ -1,4 +1,4 @@
-package com.teamip.heyhello.domain.socketio.repository;
+package com.teamip.heyhello.domain.match.repository;
 
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.teamip.heyhello.domain.socketio.dto;
+package com.teamip.heyhello.domain.match.dto;
 
 import com.teamip.heyhello.domain.user.entity.User;
 import lombok.Builder;

@@ -1,10 +1,10 @@
-package com.teamip.heyhello.domain.socketio.service;
+package com.teamip.heyhello.domain.match.service;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teamip.heyhello.domain.socketio.dto.*;
+import com.teamip.heyhello.domain.match.dto.*;
 import com.teamip.heyhello.domain.socketio.socket.SocketProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class IoMessageService {
+public class IoSignalService {
 
     private final ObjectMapper objectMapper;
 

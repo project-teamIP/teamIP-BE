@@ -1,15 +1,16 @@
-package com.teamip.heyhello.domain.socketio.service;
+package com.teamip.heyhello.domain.match.service;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.teamip.heyhello.domain.block.entity.Block;
 import com.teamip.heyhello.domain.block.repository.BlockRepository;
-import com.teamip.heyhello.domain.socketio.dto.MatchUserInfoDto;
-import com.teamip.heyhello.domain.socketio.dto.RequestUserDto;
-import com.teamip.heyhello.domain.socketio.dto.WaitUserDto;
-import com.teamip.heyhello.domain.socketio.entity.MatchRoom;
-import com.teamip.heyhello.domain.socketio.entity.MatchUserList;
-import com.teamip.heyhello.domain.socketio.repository.RoomRepository;
+import com.teamip.heyhello.domain.match.dto.MatchUserInfoDto;
+import com.teamip.heyhello.domain.match.dto.RequestUserDto;
+import com.teamip.heyhello.domain.match.dto.WaitUserDto;
+import com.teamip.heyhello.domain.match.entity.MatchRoom;
+import com.teamip.heyhello.domain.match.entity.MatchRoomList;
+import com.teamip.heyhello.domain.match.entity.MatchUserList;
+import com.teamip.heyhello.domain.match.repository.RoomRepository;
 import com.teamip.heyhello.domain.socketio.socket.SocketProperty;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
@@ -24,6 +25,7 @@ import java.util.UUID;
 @Slf4j
 public class IoMatchService {
     private final MatchUserList matchUserList;
+    private final MatchRoomList matchRoomList;
     private final UserRepository userRepository;
     private final BlockRepository blockRepository;
     private final RoomRepository roomRepository;
@@ -35,19 +37,22 @@ public class IoMatchService {
             addUserToQueueIfEmpty(client, user);
             return;
         }
-        if(isUserAlreadyInCollection(client)){
+        if(isUserAlreadyInCollection(client, user)){
             return;
         };
-
         searchUserFromCondition(server, client, user);
     }
 
-    private boolean isUserAlreadyInCollection(SocketIOClient client) {
-        if (matchUserList.getLists().containsKey(client.getSessionId())) {
-            client.sendEvent("error", "이미 대기열에 등록된 사용자입니다.(userId 기준 아님.)");
+    private boolean isUserAlreadyInCollection(SocketIOClient client, User user) {
+        if (isUserOrSessionInList(client, user)) {
+            client.sendEvent("error", "이미 대기열에 등록된 사용자입니다.");
             return true;
         }
         return false;
+    }
+
+    private boolean isUserOrSessionInList(SocketIOClient client, User user) {
+        return matchUserList.getLists().containsKey(client.getSessionId()) || matchUserList.getLists().get(client.getSessionId()).getUser().equals(user);
     }
 
     private void addUserToQueueIfEmpty(SocketIOClient client, User user) {
@@ -96,6 +101,7 @@ public class IoMatchService {
         client.joinRoom(uuid.toString());
         MatchRoom matchRoom = MatchRoom.builder().user1(waitUserDto.getUser()).user2(requestUser).roomName(uuid).build();
         roomRepository.save(matchRoom);
+        matchRoomList.getLists().put(uuid, matchRoom);
         return uuid;
     }
 
@@ -113,4 +119,24 @@ public class IoMatchService {
     }
 
 
+    public synchronized void endCall(SocketIOServer server, SocketIOClient client, String message) {
+        MatchRoom matchRoom = getMatchRoomFromClientInfo(client);
+        if(matchRoom.isActive()){
+            matchRoom.updateIsActiveToFalse();
+            server.getRoomOperations(matchRoom.getRoomName().toString()).sendEvent(SocketProperty.ENDCALL_KEY, client, "상대방이 대화를 종료하셨습니다.");
+        } else{
+            client.sendEvent(SocketProperty.ENDCALL_KEY, "이미 종료된 대화방입니다.");
+        }
+            matchRoomList.getLists().remove(matchRoom.getRoomName());
+    }
+
+    private MatchRoom getMatchRoomFromClientInfo(SocketIOClient client) {
+        MatchRoom matchRoom = roomRepository.findByRoomName(
+                UUID.fromString(client.getAllRooms()
+                        .stream()
+                        .toList()
+                        .get(1)))
+                .orElseThrow(()-> new NullPointerException("해당 방 정보를 찾을 수 없습니다"));
+        return matchRoom;
+    }
 }

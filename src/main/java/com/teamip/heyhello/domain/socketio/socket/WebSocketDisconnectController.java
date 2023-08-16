@@ -1,9 +1,6 @@
 package com.teamip.heyhello.domain.socketio.socket;
 
 import com.corundumstudio.socketio.SocketIOClient;
-import com.teamip.heyhello.domain.socketio.service.IoMatchService;
-import com.teamip.heyhello.domain.user.entity.User;
-import com.teamip.heyhello.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

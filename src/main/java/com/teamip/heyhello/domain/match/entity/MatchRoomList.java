@@ -1,8 +1,7 @@
-package com.teamip.heyhello.domain.socketio.entity;
+package com.teamip.heyhello.domain.match.entity;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
