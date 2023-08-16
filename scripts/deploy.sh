@@ -29,4 +29,4 @@ echo "[$TIME_NOW] > $JAR_PATH 배포" >> $DEPLOY_LOG
 nohup java -jar $JAR_PATH > /dev/null 2> /dev/null < /dev/null &
 
 CURRENT_PID=$(get_pid)
-echo "[$TIME_NOW] > 재배포된 .jar PID: $CURRENT_PID"
+echo "[$TIME_NOW] > 재배포된 .jar PID: $CURRENT_PID" >> $DEPLOY_LOG
