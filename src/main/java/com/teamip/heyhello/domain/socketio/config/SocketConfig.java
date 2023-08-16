@@ -33,5 +33,4 @@ public class SocketConfig {
         server.addDisconnectListener(disConnectController::onDisConnect);
         return server;
     }
-
 }
