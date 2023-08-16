@@ -84,9 +84,17 @@ public class JwtUtil implements InitializingBean {
                 .getBody();
     }
 
-    public String getLoginIdFromToken(String token) {
-        validateToken(token);
-        return getUserInfoFromToken(token).getSubject();
+    public Claims getUserInfoFromTokenWithoutValidate(String token) {
+        try {
+            return Jwts
+                    .parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
     public String substringToken(String token) {

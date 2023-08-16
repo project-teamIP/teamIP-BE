@@ -1,6 +1,7 @@
 package com.teamip.heyhello.global.redis;
 
 import com.teamip.heyhello.global.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -23,13 +24,14 @@ public class BlackListRepository {
         String atk = blackListJwt.getAtk();
         long remainingTime = jwtUtil.getRemainingSeconds(blackListJwt.getAtk());
 
-        ValueOperations<String ,String> valueOperations = blackList.opsForValue();
+        ValueOperations<String, String> valueOperations = blackList.opsForValue();
         valueOperations.set(atk, remainingTime + "");
         blackList.expire(atk, remainingTime, TimeUnit.SECONDS);
     }
 
     public Optional<BlackListJwt> getBlackList(String atk) {
-        String loginId = jwtUtil.getLoginIdFromToken(atk);
+        Claims userInfo = jwtUtil.getUserInfoFromTokenWithoutValidate(atk);
+        String loginId = userInfo.getSubject();
 
         ValueOperations<String, String> valueOperations = blackList.opsForValue();
         String findAtk = (String) valueOperations.get(JwtUtil.BEARER_PREFIX + atk);
