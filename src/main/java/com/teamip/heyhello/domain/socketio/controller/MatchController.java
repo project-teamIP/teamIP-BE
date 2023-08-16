@@ -1,6 +1,5 @@
 package com.teamip.heyhello.domain.socketio.controller;
 
-import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,12 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 @SocketController
 @RequiredArgsConstructor
 @Slf4j
-public class ChatController {
+public class MatchController {
     private final ObjectMapper objectMapper;
     private final IoMatchService ioMatchService;
     private final IoMessageService ioMessageService;
 
-    @SocketMapping(endpoint = "match", requestCls = String.class)
+    @SocketMapping(endpoint = SocketProperty.MATCH_KEY, requestCls = String.class)
     public void findMatch(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException {
         RequestUserDto requestUserDto = objectMapper.readValue(message, RequestUserDto.class);
         ioMatchService.findMatch(server, client, requestUserDto);
@@ -46,5 +45,10 @@ public class ChatController {
             ioMessageService.sendIceMessage(server, client, message);
         }
     }
+    @SocketMapping(endpoint = SocketProperty.CANCEL_KEY, requestCls = String.class)
+    public void cancelFindMatch(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException{
+        ioMatchService.cancelFindMatch(server, client, message);
+    }
+
 
 }
