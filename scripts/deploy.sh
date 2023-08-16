@@ -8,7 +8,7 @@ JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 DEPLOY_LOG="$REPOSITORY/deploy.log"
 
 CURRENT_PID=$(pgrep -f $APP_NAME)
-
+echo "-----------------------------------------" >> $DEPLOY_LOG
 echo "[$TIME_NOW] > 현재 실행 중인 .jar PID=$CURRENT_PID" >> $DEPLOY_LOG
 
 if [ -z $CURRENT_PID ]
@@ -18,10 +18,10 @@ else
   echo "[$TIME_NOW] > PID=$CURRENT_PID 종료." >> $DEPLOY_LOG
   kill -15 $CURRENT_PID
   sleep 10
-  # if ps -f $CURRENT_PID > /dev/null
-  # then
-  #   echo "[$TIME_NOW] > 프로세스가 정상정료되지 않으므로 강제종료 합니다." >> $DEPLOY_LOG
-  #   kill -9 $CURRENT_PID
+  if ps -f $CURRENT_PID > /dev/null
+  then
+    echo "[$TIME_NOW] > 프로세스가 정상정료되지 않으므로 강제종료 합니다." >> $DEPLOY_LOG
+    kill -9 $CURRENT_PID
 fi
 
 echo "[$TIME_NOW] > $JAR_PATH 배포" >> $DEPLOY_LOG
