@@ -69,7 +69,7 @@ public class BuddyService {
                         .build()
         ).toList();
 
-        return new PageImpl<>(buddyResponseDtos, pageable, buddyPage.getTotalElements());
+        return new PageImpl<>(buddyResponseDtos, newPageable, buddyPage.getTotalElements());
     }
 
     @Transactional
