@@ -6,13 +6,18 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Entity
 @NoArgsConstructor
-public class MatchRoom extends TimeStamped {
+@EntityListeners(AuditingEntityListener.class)
+public class MatchRoom{
 
     @Id
     @Column(name = "room_id")
@@ -33,6 +38,15 @@ public class MatchRoom extends TimeStamped {
     @Column
     private boolean isActive;
 
+    @CreatedDate
+    @Column(updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private  LocalDateTime closedAt;
     @Builder
     public MatchRoom(UUID roomName, User user1, User user2) {
         this.roomName = roomName;
