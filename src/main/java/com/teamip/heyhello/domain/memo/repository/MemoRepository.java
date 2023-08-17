@@ -11,4 +11,6 @@ public interface MemoRepository extends JpaRepository<Memo,Long> {
     List<Memo> findByUserId(Long userId);
 
     Page<Memo> findByUserId(Long userId, Pageable pageable);
+
+    List<Memo> findTop6ByUserIdOrderByCreatedAtDesc(Long id);
 }

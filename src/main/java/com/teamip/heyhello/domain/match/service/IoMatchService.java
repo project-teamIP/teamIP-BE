@@ -97,7 +97,13 @@ public class IoMatchService {
         SocketIOClient waitClient = server.getClient(waitUserDto.getSessionId());
         waitClient.joinRoom(uuid.toString());
         client.joinRoom(uuid.toString());
-        MatchRoom matchRoom = MatchRoom.builder().user1(waitUserDto.getUser()).user2(requestUser).roomName(uuid).build();
+        MatchRoom matchRoom = MatchRoom.builder()
+                .user1(waitUserDto.getUser())
+                .user1Client(waitClient.getSessionId())
+                .user2(requestUser)
+                .user2Client(client.getSessionId())
+                .roomName(uuid)
+                .build();
         roomRepository.save(matchRoom);
         matchRoomList.getLists().put(uuid, matchRoom);
         return uuid;
@@ -122,6 +128,8 @@ public class IoMatchService {
         if (matchRoom.isActive()) {
             matchRoom.updateIsActiveToFalse();
             server.getRoomOperations(matchRoom.getRoomName().toString()).sendEvent(SocketProperty.ENDCALL_KEY, "대화가 종료되었어요!");
+            server.getClient(matchRoom.getUser1Client()).disconnect();
+            server.getClient(matchRoom.getUser2Client()).disconnect();
         } else {
             client.sendEvent(SocketProperty.ENDCALL_KEY, "이미 종료된 대화방입니다.");
         }
