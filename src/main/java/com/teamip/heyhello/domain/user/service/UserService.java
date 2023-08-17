@@ -1,5 +1,10 @@
 package com.teamip.heyhello.domain.user.service;
 
+import com.teamip.heyhello.domain.match.dto.MatchRoomResponseDto;
+import com.teamip.heyhello.domain.match.entity.MatchRoom;
+import com.teamip.heyhello.domain.match.repository.RoomRepository;
+import com.teamip.heyhello.domain.match.service.MatchRoomService;
+import com.teamip.heyhello.domain.memo.service.MemoService;
 import com.teamip.heyhello.domain.user.dto.*;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
@@ -30,6 +35,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final S3UploadService s3UploadService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final MatchRoomService matchRoomService;
+    private final MemoService memoService;
 
     public StatusResponseDto signup(SignupRequestDto signupRequestDto) {
         String defaultUrl = setRandomDefaultImageUrl();
@@ -171,6 +178,16 @@ public class UserService {
         return StatusResponseDto.builder()
                 .status(HttpStatus.OK)
                 .message(partnerNickname+"님의 점수를 등록했습니다!")
+                .build();
+    }
+
+    public DashBoardResponseDto getDashBoardInfo(UserDetailsImpl userDetails) {
+        User user= userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(()->new NullPointerException("없는 유저입니다"));
+
+        return DashBoardResponseDto.builder()
+                .matchRoomList(matchRoomService.getMatchRoomResponseDtos(user))
+                .memoList(memoService.getMemoListForDashBoard(user))
+                .userCount(countActiveUser())
                 .build();
     }
 }

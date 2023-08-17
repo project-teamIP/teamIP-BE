@@ -31,9 +31,15 @@ public class MatchRoom{
     @JoinColumn(name = "user1_id", referencedColumnName = "user_id")
     private User user1;
 
+    @Column
+    private UUID user1Client;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user2_id", referencedColumnName = "user_id")
     private User user2;
+
+    @Column
+    private UUID user2Client;
 
     @Column
     private boolean isActive;
@@ -48,10 +54,12 @@ public class MatchRoom{
     @Temporal(TemporalType.TIMESTAMP)
     private  LocalDateTime closedAt;
     @Builder
-    public MatchRoom(UUID roomName, User user1, User user2) {
+    public MatchRoom(UUID roomName, User user1, UUID user1Client, User user2, UUID user2Client) {
         this.roomName = roomName;
         this.user1 = user1;
+        this.user1Client = user1Client;
         this.user2 = user2;
+        this.user2Client = user2Client;
         this.isActive = true;
     }
 

@@ -1,5 +1,6 @@
 package com.teamip.heyhello.domain.memo.service;
 
+import com.teamip.heyhello.domain.memo.dto.MemoListResponseDto;
 import com.teamip.heyhello.domain.memo.dto.MemoRequestDto;
 import com.teamip.heyhello.domain.memo.dto.MemoResponseDto;
 import com.teamip.heyhello.domain.memo.entity.Memo;
@@ -139,5 +140,16 @@ public class MemoService {
     Memo findMemo(Long id){
         return memoRepository.findById(id).orElseThrow(()->
                 new IllegalArgumentException("선택한 메모가 존재하지 않습니다."));
+    }
+
+    public List<MemoListResponseDto> getMemoListForDashBoard(User user){
+        List<Memo> memoList = memoRepository.findTop6ByUserIdOrderByCreatedAtDesc(user.getId());
+        return memoList.stream()
+                .map(memo -> MemoListResponseDto.builder()
+                       .id(memo.getId())
+                       .title(memo.getTitle())
+                       .content(memo.getContent())
+                       .createdAt(memo.getCreatedAt())
+                       .build()).toList();
     }
 }
