@@ -25,9 +25,11 @@ else
     fi
 fi
 
+source /etc/profile
 echo "[$TIME_NOW] > $JAR_PATH 배포" >> $DEPLOY_LOG
 nohup java -jar $JAR_PATH > $REPOSITORY/nohup.log 2> $REPOSITORY/error.log < /dev/null & echo "[$TIME_NOW] > 프로세스 시작, PID=$!" >> $DEPLOY_LOG
 
+sleep 10
+
 CURRENT_PID=$(pgrep -f $APP_NAME)
-sleep 7
 echo "[$TIME_NOW] > 재배포된 .jar PID=$CURRENT_PID" >> $DEPLOY_LOG

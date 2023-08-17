@@ -44,7 +44,11 @@ public class Memo extends TimeStamped {
     }
 
     public void update(MemoRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.content = requestDto.getContent();
+        if (requestDto.getTitle() != null) {
+            this.title = requestDto.getTitle();
+        }
+        if (requestDto.getContent() != null) {
+            this.content = requestDto.getContent();
+        }
     }
 }
