@@ -39,7 +39,7 @@ public class User {
     @Column(nullable = false)
     private Boolean isGoogle;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String language;
 
     @Column(nullable = false)
@@ -123,4 +123,11 @@ public class User {
         this.status = status;
     }
 
+    public void updateCleanPoint(Long point) {
+        if (point < -10 || point > 10) {
+            throw new IllegalArgumentException("매너 점수는 -10 ~ +10 사이로 입력해주세요.");
+        } else {
+            this.cleanPoint = cleanPoint + point;
+        }
+    }
 }

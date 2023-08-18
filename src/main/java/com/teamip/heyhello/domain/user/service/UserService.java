@@ -1,16 +1,17 @@
 package com.teamip.heyhello.domain.user.service;
 
+
 import com.amazonaws.services.kms.model.NotFoundException;
-import com.teamip.heyhello.domain.user.dto.MypageResponseDto;
-import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
-import com.teamip.heyhello.domain.user.dto.UpdateProfileDto;
-import com.teamip.heyhello.domain.user.dto.UrlResponseDto;
+import com.teamip.heyhello.domain.match.service.MatchDataService;
+import com.teamip.heyhello.domain.memo.service.MemoService;
+import com.teamip.heyhello.domain.user.dto.*;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.entity.UserStatus;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.redis.TokenService;
+import com.teamip.heyhello.global.redis.RefreshTokenRepository;
 import com.teamip.heyhello.global.s3.S3UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final S3UploadService s3UploadService;
     private final TokenService tokenService;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final MatchDataService matchDataService;
+    private final MemoService memoService;
 
     public StatusResponseDto signup(SignupRequestDto signupRequestDto) {
         String defaultUrl = setRandomDefaultImageUrl();
@@ -120,7 +124,7 @@ public class UserService {
 
 
     public String setRandomDefaultImageUrl() {
-        ArrayList<String> defaultImageKey = new ArrayList<>(List.of("profile1.png", "profile2.png", "profile3.png"));
+        ArrayList<String> defaultImageKey = new ArrayList<>(List.of("profile1.png", "profile2.png", "profile3.png", "profile4.png", "profile5.png", "profile6.png", "profile7.png"));
 
         int randomIndex = random.nextInt(defaultImageKey.size());
 
@@ -164,11 +168,45 @@ public class UserService {
                 }
         );
     }
-
+  
     public HttpHeaders createTokenHeader(String jwtAccessToken, String refreshToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("AccessToken", jwtAccessToken);
         headers.add("RefreshToken", refreshToken);
         return headers;
+    }
+
+    public int countActiveUser(){
+        int activeUser = 0;
+        activeUser = refreshTokenRepository.countRefreshTokens();
+        return activeUser;
+    }
+
+    @Transactional
+    public StatusResponseDto rateCleanPoint(User user, String partnerNickname, Long point) {
+
+        if(user.getNickname().equals(partnerNickname)){
+            throw new IllegalArgumentException("본인의 점수는 매길 수 없습니다.");
+        }
+
+        User partner = userRepository.findByNickname(partnerNickname).orElseThrow(
+                () -> new RuntimeException("존재하지 않는 사용자입니다.")
+        );
+        partner.updateCleanPoint(point);
+
+        return StatusResponseDto.builder()
+                .status(HttpStatus.OK)
+                .message(partnerNickname+"님의 점수를 등록했습니다!")
+                .build();
+    }
+
+    public DashBoardResponseDto getDashBoardInfo(UserDetailsImpl userDetails) {
+        User user= userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(()->new NullPointerException("없는 유저입니다"));
+
+        return DashBoardResponseDto.builder()
+                .matchRoomList(matchDataService.getMatchRoomResponseDtos(user))
+                .memoList(memoService.getMemoListForDashBoard(user))
+                .userCount(countActiveUser())
+                .build();
     }
 }

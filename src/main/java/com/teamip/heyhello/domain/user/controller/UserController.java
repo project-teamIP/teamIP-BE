@@ -2,6 +2,7 @@ package com.teamip.heyhello.domain.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.teamip.heyhello.domain.user.dto.*;
+import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.service.BuddyService;
 import com.teamip.heyhello.domain.user.service.GoogleService;
 import com.teamip.heyhello.domain.user.service.KakaoService;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -131,5 +133,22 @@ public class UserController {
         else {
             throw new IllegalArgumentException("유효한 provider가 아닙니다.");
         }
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<ActiveUserResponseDto> countActiveUser(){
+        return ResponseEntity.ok().body(new ActiveUserResponseDto(userService.countActiveUser()));
+    }
+
+    @PutMapping("/point")
+    public ResponseEntity<StatusResponseDto> rateCleanPoint(@RequestHeader("AccessToken") String tokenValue,
+                                                            @RequestBody CleanPointRequestDto requestDto){
+        User user = jwtUtil.getUserFromToken(tokenValue);
+        return ResponseEntity.ok().body(userService.rateCleanPoint(user, requestDto.getPartnerNickname(), requestDto.getPoint()));
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<DashBoardResponseDto> getDashBoardInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return ResponseEntity.ok(userService.getDashBoardInfo(userDetails));
     }
 }

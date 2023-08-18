@@ -1,0 +1,59 @@
+name: Build and Deploy to S3 And EC2
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+env:
+  PROJECT_NAME: heyhi-project
+  CODE_DEPLOY_APP_NAME: ${{ secrets.CODE_DEPLOY_APP_NAME }}
+  DEPLOYMENT_GROUP_NAME: ${{ secrets.DEPLOYMENT_GROUP_NAME }}
+  S3_BUCKET_NAME: heyhi-github-actions-bucket
+  JASYPT_ENCRYPTOR_KEY: ${{ secrets.JASYPT_ENCRYPTOR_KEY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Setup Redis
+        uses: zhulik/redis-action@1.1.0
+
+      - name: Give exec permissions to gradlew script
+        run: chmod +x gradlew
+
+      - name: Build With Gradle
+        run: ./gradlew clean build -x test
+    
+      - name: Make Directory
+        run: mkdir -p deploy
+
+      - name: Compress /deploy
+        run: zip -r ./heyhi.zip .
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'ap-northeast-2'
+
+      - name: Uplaod to S3
+        run: aws s3 cp --region ap-northeast-2 ./heyhi.zip s3://$S3_BUCKET_NAME/
+
+      - name: Code Deploy to EC2 Instance
+        run: aws deploy create-deployment
+          --application-name $CODE_DEPLOY_APP_NAME
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name $DEPLOYMENT_GROUP_NAME
+          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=heyhi.zip

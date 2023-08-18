@@ -1,43 +1,60 @@
 package com.teamip.heyhello.domain.match.controller;
 
-import com.teamip.heyhello.domain.match.dto.RoomStatusDto;
-import com.teamip.heyhello.domain.match.dto.MatchInfoRequestDto;
-import com.teamip.heyhello.domain.match.service.MatchService;
-import com.teamip.heyhello.domain.match.service.MessageService;
+import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOServer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.teamip.heyhello.domain.socketio.annotation.SocketController;
+import com.teamip.heyhello.domain.socketio.annotation.SocketMapping;
+import com.teamip.heyhello.domain.match.dto.RequestUserDto;
+import com.teamip.heyhello.domain.match.service.IoMatchService;
+import com.teamip.heyhello.domain.match.service.IoSignalService;
+import com.teamip.heyhello.domain.socketio.socket.SocketProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.stereotype.Controller;
 
-@Controller
+@SocketController
 @RequiredArgsConstructor
 @Slf4j
 public class MatchController {
+    private final ObjectMapper objectMapper;
+    private final IoMatchService ioMatchService;
+    private final IoSignalService ioSignalService;
 
-    private final MatchService matchService;
-    private final MessageService messageService;
+    @SocketMapping(endpoint = SocketProperty.MATCH_KEY, requestCls = String.class)
+    public void findMatch(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException {
+        RequestUserDto requestUserDto = objectMapper.readValue(message, RequestUserDto.class);
+        ioMatchService.findMatch(server, client, requestUserDto);
+    }
 
-    @MessageMapping("/start/{endpoint}")
-    public void checkMatch(@DestinationVariable String endpoint, Message message) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        MatchInfoRequestDto matchInfoRequestDto = messageService.parseHeadersInfo(headerAccessor);
-        matchService.findMatch(matchInfoRequestDto);
-        RoomStatusDto roomStatusDto = null;
-        if (matchInfoRequestDto.isMatched()) {
-            roomStatusDto = matchService.checkDirectMatch(matchInfoRequestDto.getUser().getLoginId());
+
+    @SocketMapping(endpoint = SocketProperty.OFFER_KEY, requestCls = String.class)
+    public void sendOfferMessage(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException {
+        log.info("session = {}",client.getSessionId());
+        log.info("message = {}", message);
+        ioSignalService.sendOfferMessage(server, client, message);
+    }
+
+    @SocketMapping(endpoint = SocketProperty.ANSWER_KEY, requestCls = String.class)
+    public void sendAnswerMessage(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException {
+       ioSignalService.sendAnswerMessage(server, client, message);
+    }
+
+
+    @SocketMapping(endpoint = SocketProperty.ICE_KEY, requestCls = String.class)
+    public void sendIceMessage(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException{
+        if(message!=null && !message.equals("null")) {
+            ioSignalService.sendIceMessage(server, client, message);
         }
-        messageService.SendSearchResult(endpoint, roomStatusDto);
+    }
+    @SocketMapping(endpoint = SocketProperty.CANCEL_KEY, requestCls = String.class)
+    public void cancelFindMatch(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException{
+        ioMatchService.cancelFindMatch(server, client, message);
     }
 
-    @MessageMapping("/stop/{endpoint}")
-    public void stopMatch(@DestinationVariable String endpoint, Message message){
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        Long userId = Long.valueOf(headerAccessor.getNativeHeader("userId").get(0));
-        matchService.removeFromList(userId);
-
-        messageService.SendStopMatchResult(endpoint);
+    @SocketMapping(endpoint = SocketProperty.ENDCALL_KEY, requestCls = String.class)
+    public void endCall(SocketIOClient client, SocketIOServer server, String message) throws JsonProcessingException{
+        ioMatchService.endCall(server, client, message);
     }
+
 }

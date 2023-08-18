@@ -1,0 +1,66 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ENC(ZqkXSCTCBBZblH0KDz1lfpe6txR5x32nYaoqE0B2+RyWggDhHp5tljBbSWFo+kQG6o9Xt5JtGADndRvKtlbMTq7jOckhrXt5K04xW0GY0Wwy42QlGir+3S9PI7x+d7qDoTu/l1iGht6qMP19PEz37PFvinrD4JJsBg+Q4JtkIYQ=)
+    username: ENC(e96U8NyR2TMbFa4r/t5+gr9eqEjeNkchfNOpsRL25/2dHB/xPha87nWz9ywAcidx)
+    password: ENC(J6les/JCKYwtGg5O/YB2zstuR4c2MAWgGW42rJUoCE/OVGzJeOXrgMb9IP2+JrkS)
+#    url: jdbc:mysql://localhost:3306/heyhello
+#    username: ENC(APd+C240C+xaqqcXugQTqJPjWOBbNBLNZOqrg9zSa0c7dQuH1B2XkuyqfHo4UT4G)
+#    password: ENC(Cqvayc/eIe71LrPtNRpl/xmRYRak41+TXdYDpqkp4pPDihZjZ4C4mviUwFP8pYFW)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ENC(YdiGpR8mRpUwHXc2N1jYhOIJIKQG9MOU8B9PBZ2Np3A4tkeqIbvcKx3xF+j/XVzVrqsSNkOWlUrl5vUNRlQIaQ==)
+    password: ENC(cPFFJrZ83pqrO2pi5ITL9WDjsOm/051aNVVG6cH8uAn93x8qi9SOnP1dEldpYNkfMBBV66FD9qG6LqgIR+63EA==)
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+#  sql:
+#    init:
+#      mode: always
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+jwt:
+  secret: ENC(HlNrhW6ZHFmH9FftnX6sufHwR/wLevkSEK9Bw9dnEaVSXi63U1jB/icIKU7dU3Hn8hLkcqjKOZmlGMrdXRTgV47qivN0kWNMMndmEAHLVYGhGACHFju0u8j3aoX0iGbL51H+FR7FUfSsiE+Qw0NGruKieeDRSeE7X+oBkF2Fnuw=)
+
+cloud:
+  aws:
+    s3:
+      bucket: ENC(/kVnEiynTYG4M0vQzgHwXUGhfmMahqh3yV0af+mIAipZjdEc+RSIXpOWAa3UFbtS)
+    credentials:
+      access-key: ENC(DOOAwuHyeDPp3783gB11QnV+KGO8YzioaBAxwce81W4N2labzpqaNCfk0JYUVWaiyRqdRhILlRrFIUdh+Dj4+g==)
+      secret-key: ENC(S6gDwiAR5Ly9Nk+7K2h/tQK1mOKgkiIlWIKSxeG/qkCXgnEyqO5e1DGerAyUGFZaViwBk8yAjK0ksZ46niiJDRdLmPAXMtsfkeXeUpZBq0I=)
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+secret:
+  s3:
+    host:
+      url: ENC(XXRXjtrrPg17jIPEx03vPABArZ8MOCkZcG8OX+xQ3Ltgu1BJopZheT81tt8jNDCo32VqK2miGn5pFf4mZYoQMEBPiRJuJdNRr+JrSx/HrDXQJdge7mCSDeAO6HAEYfjO)
+
+jasypt:
+  encryptor:
+    password: ${JASYPT_ENCRYPTOR_KEY}
+
+socket:
+  port: 5004
