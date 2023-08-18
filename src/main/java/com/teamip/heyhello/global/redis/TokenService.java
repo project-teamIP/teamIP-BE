@@ -1,5 +1,6 @@
 package com.teamip.heyhello.global.redis;
 
+import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
@@ -70,5 +71,11 @@ public class TokenService {
 
     public String print(String loginId) {
         return refreshTokenRepository.printHashOpsByLoginId(loginId);
+    }
+
+    public void invalidateTokensForUser(User user,String atk) {
+        blackListRepository.setBlackList(new BlackListJwt(user.getLoginId(), atk));
+
+        refreshTokenRepository.deleteByRefreshToken(user.getLoginId());
     }
 }

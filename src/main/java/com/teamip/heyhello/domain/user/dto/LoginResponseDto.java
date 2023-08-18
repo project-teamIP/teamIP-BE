@@ -1,6 +1,7 @@
 package com.teamip.heyhello.domain.user.dto;
 
 import com.teamip.heyhello.domain.user.entity.User;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +13,7 @@ public class LoginResponseDto {
     private String nickname;
 
     private String Language;
-
+    @Builder
     public LoginResponseDto(User user){
         this.id = user.getId();
         this.nickname = user.getNickname();
