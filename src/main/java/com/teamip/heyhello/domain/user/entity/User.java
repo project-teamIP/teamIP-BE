@@ -49,7 +49,7 @@ public class User {
     private Boolean isLocked;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Memo> MemoList = new ArrayList<>();
 
     @Column(nullable = false)
