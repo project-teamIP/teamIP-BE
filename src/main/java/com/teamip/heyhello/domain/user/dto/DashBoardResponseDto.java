@@ -14,11 +14,13 @@ public class DashBoardResponseDto {
     private List<MatchRoomResponseDto> matchRoomInfos;
     private List<MemoListResponseDto> memos;
     private int userCount;
+    private List<Integer> countByHour;
 
     @Builder
-    public DashBoardResponseDto(List<MatchRoomResponseDto> matchRoomList, List<MemoListResponseDto> memoList, int userCount) {
+    public DashBoardResponseDto(List<MatchRoomResponseDto> matchRoomList, List<MemoListResponseDto> memoList, int userCount, List<Integer> userCountList) {
         this.matchRoomInfos = matchRoomList;
         this.memos = memoList;
         this.userCount = userCount;
+        this.countByHour = userCountList;
     }
 }

@@ -2,6 +2,7 @@ package com.teamip.heyhello.domain.user.service;
 
 
 import com.amazonaws.services.kms.model.NotFoundException;
+import com.teamip.heyhello.domain.hourtraffic.service.HourTrafficService;
 import com.teamip.heyhello.domain.match.service.MatchDataService;
 import com.teamip.heyhello.domain.memo.service.MemoService;
 import com.teamip.heyhello.domain.user.dto.*;
@@ -15,7 +16,6 @@ import com.teamip.heyhello.global.redis.RefreshTokenRepository;
 import com.teamip.heyhello.global.s3.S3UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +41,7 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final MatchDataService matchDataService;
     private final MemoService memoService;
+    private final HourTrafficService hourTrafficService;
 
     public StatusResponseDto signup(SignupRequestDto signupRequestDto) {
         String defaultUrl = setRandomDefaultImageUrl();
@@ -207,6 +206,7 @@ public class UserService {
                 .matchRoomList(matchDataService.getMatchRoomResponseDtos(user))
                 .memoList(memoService.getMemoListForDashBoard(user))
                 .userCount(countActiveUser())
+                .userCountList(hourTrafficService.todayUserCountListByHour())
                 .build();
     }
 }

@@ -147,6 +147,7 @@ public class MemoService {
         return memoList.stream()
                 .map(memo -> MemoListResponseDto.builder()
                        .id(memo.getId())
+                        .nickname(memo.getPartnerNickname())
                        .title(memo.getTitle())
                        .content(memo.getContent())
                        .createdAt(memo.getCreatedAt())
