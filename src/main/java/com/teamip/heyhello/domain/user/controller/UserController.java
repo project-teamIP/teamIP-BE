@@ -9,6 +9,7 @@ import com.teamip.heyhello.domain.user.service.KakaoService;
 import com.teamip.heyhello.domain.user.service.UserService;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
+import com.teamip.heyhello.global.redis.RefreshTokenRepository;
 import com.teamip.heyhello.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class UserController {
     private final GoogleService googleService;
     private final BuddyService buddyService;
     private final JwtUtil jwtUtil;
-
+    
     @PostMapping("/signup")
     public ResponseEntity<StatusResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) {
 
@@ -43,9 +44,11 @@ public class UserController {
     }
 
     @DeleteMapping("/withdrawal")
-    public ResponseEntity<StatusResponseDto> withdrawal(@RequestParam Long userId) {
+    public ResponseEntity<StatusResponseDto> withdrawal(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                        @RequestHeader("AccessToken") String atk) {
+        StatusResponseDto response = userService.withdrawal(userDetails, atk);
 
-        return ResponseEntity.ok(userService.withdrawal(userId));
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @GetMapping("/mypage")
@@ -102,24 +105,35 @@ public class UserController {
 
     @GetMapping("/login/kakao")
     public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        String token = kakaoService.kakaoLogin(code);
-        User user = jwtUtil.getUserFromToken(token);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("AccessToken", token);
-
-        return ResponseEntity.ok().headers(headers).body(new LoginResponseDto(user));
+        return kakaoService.kakaoLogin(code);
     }
 
     @GetMapping("/login/google")
     public ResponseEntity<LoginResponseDto> googleLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        String token = googleService.googleLogin(code);
-        User user = jwtUtil.getUserFromToken(token);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("AccessToken", token);
+        return googleService.googleLogin(code);
+    }
 
-        return ResponseEntity.ok().headers(headers).body(new LoginResponseDto(user));
+    @GetMapping("/auth/social")
+    public ResponseEntity<StatusResponseDto> getKakaoTokenForWithdrawal(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException{
+
+        return kakaoService.getKakaoTokenForWithdrawal(code);
+    }
+    @PostMapping("/withdrawal/social")
+    public ResponseEntity<StatusResponseDto> withdrawal(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                        @RequestParam String provider,
+                                                        @RequestParam String token,
+                                                        @RequestHeader("AccessToken") String atk) {
+        if ("kakao".equals(provider)) {
+            return ResponseEntity.ok(kakaoService.kakaoWithdrawal(userDetails, token, atk));
+        }
+//        if ("google".equals(provider)) {
+//        //    return googleService.googleWithdrawal(userDetails, accessToken);
+ //       }
+        else {
+            throw new IllegalArgumentException("유효한 provider가 아닙니다.");
+        }
     }
 
     @GetMapping("/count")

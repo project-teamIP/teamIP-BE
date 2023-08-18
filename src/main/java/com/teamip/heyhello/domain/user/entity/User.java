@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +64,9 @@ public class User {
     @Column(nullable = false)
     private String image;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status;
 
     @Builder
     private User(String loginId, String password, String nickname, String image, String country, String gender, String language, String interest) {
@@ -78,6 +82,7 @@ public class User {
         this.interest = defaultValue(interest);
         this.language = defaultValue(language);
         this.image = image;
+        this.status = UserStatus.ACTIVE;
     }
 
     private String defaultValue(String value) {
@@ -112,6 +117,10 @@ public class User {
         this.gender = Optional.ofNullable(updateProfileDto.getGender()).orElse(this.gender);
         this.country = Optional.ofNullable(updateProfileDto.getCountry()).orElse(this.country);
         this.interest = Optional.ofNullable(updateProfileDto.getInterest()).orElse(interest);
+    }
+
+    public void setStatus(UserStatus userStatus) {
+        this.status = status;
     }
 
     public void updateCleanPoint(Long point) {

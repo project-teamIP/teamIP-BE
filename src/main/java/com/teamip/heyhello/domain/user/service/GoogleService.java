@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamip.heyhello.domain.user.dto.GoogleUserInfoDto;
+import com.teamip.heyhello.domain.user.dto.LoginResponseDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
+import com.teamip.heyhello.global.redis.RefreshTokenRepository;
+import com.teamip.heyhello.global.redis.TokenResponse;
 import com.teamip.heyhello.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,17 +35,21 @@ public class GoogleService {
     private final UserService userService;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public String googleLogin(String code) throws JsonProcessingException {
-        String accessToken = getToken(code);
+    public ResponseEntity<LoginResponseDto> googleLogin(String code) throws JsonProcessingException {
+        String googleaccessToken = getToken(code);
 
-        GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(accessToken);
+        GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(googleaccessToken);
 
         User googleUser = registerGoogleUserIfNeeded(googleUserInfo);
 
-        String createToken = jwtUtil.createAccessToken(googleUser.getLoginId());
+        String jwtAccessToken = jwtUtil.createAccessToken(googleUser.getLoginId());
 
-        return createToken;
+        String refreshToken = refreshTokenRepository.createAndSave(googleUser.getLoginId());
+
+        HttpHeaders headers = userService.createTokenHeader(jwtAccessToken, refreshToken);
+        return ResponseEntity.ok().headers(headers).body(LoginResponseDto.builder().user(googleUser).build());
     }
 
     private String getToken(String code) throws JsonProcessingException {
@@ -124,6 +131,30 @@ public class GoogleService {
             userRepository.save(googleUser);
         }
         return googleUser;
+    }
+
+//    public void googleLogout(String accessToken) {
+//        URI uri = UriComponentsBuilder
+//                .fromUriString("https://accounts.google.com")
+//                .path("/o/oauth2/revoke")
+//                .queryParam("token", accessToken)
+//                .encode()
+//                .build()
+//                .toUri();
+//
+//        restTemplate.postForLocation(uri, null);
+//    }
+
+    public void googleWithdrawal(String accessToken) {
+        URI uri = UriComponentsBuilder
+                .fromUriString("https://accounts.google.com")
+                .path("/o/oauth2/revoke")
+                .queryParam("token", accessToken)
+                .encode()
+                .build()
+                .toUri();
+
+        restTemplate.postForLocation(uri, null);
     }
 
 }

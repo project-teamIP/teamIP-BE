@@ -1,16 +1,22 @@
 package com.teamip.heyhello.domain.user.service;
 
+
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.teamip.heyhello.domain.match.service.MatchDataService;
 import com.teamip.heyhello.domain.memo.service.MemoService;
 import com.teamip.heyhello.domain.user.dto.*;
 import com.teamip.heyhello.domain.user.entity.User;
+import com.teamip.heyhello.domain.user.entity.UserStatus;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
+import com.teamip.heyhello.global.redis.TokenService;
 import com.teamip.heyhello.global.redis.RefreshTokenRepository;
 import com.teamip.heyhello.global.s3.S3UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +39,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final S3UploadService s3UploadService;
+    private final TokenService tokenService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MatchDataService matchDataService;
     private final MemoService memoService;
@@ -83,8 +92,14 @@ public class UserService {
         return StatusResponseDto.builder().status(HttpStatus.OK).message("업데이트 완료").build();
     }
 
+    @Transactional
+    public StatusResponseDto withdrawal(UserDetailsImpl userDetails, String atk) {
+        User user = userRepository.findByLoginId(userDetails.getUsername())
+                .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
 
-    public StatusResponseDto withdrawal(Long userId) {
+        user.setStatus(UserStatus.WITHDRAWAL);
+        user.disableUserAccount();
+        tokenService.invalidateTokensForUser(user, atk);
 
         return StatusResponseDto.builder().status(HttpStatus.OK).message("회원 탈퇴 성공").build();
     }
@@ -152,6 +167,13 @@ public class UserService {
                     throw new RuntimeException("이미 존재하는 계정입니다.");
                 }
         );
+    }
+  
+    public HttpHeaders createTokenHeader(String jwtAccessToken, String refreshToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("AccessToken", jwtAccessToken);
+        headers.add("RefreshToken", refreshToken);
+        return headers;
     }
 
     public int countActiveUser(){
