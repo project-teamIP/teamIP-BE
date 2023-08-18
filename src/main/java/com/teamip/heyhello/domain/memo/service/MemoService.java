@@ -38,6 +38,10 @@ public class MemoService {
         User partnerUser = userRepository.findByNickname(requestDto.getPartnerNickname())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        if(currentUser == partnerUser){
+            throw new IllegalArgumentException("통화한 상대방이 본인일 수 없습니다!");
+        }
+
         // 상대방 프로필 이미지 가져오기
         String partnerImage = partnerUser.getImage();
 
