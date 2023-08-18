@@ -35,7 +35,8 @@ public class UserController {
     private final KakaoService kakaoService;
     private final GoogleService googleService;
     private final BuddyService buddyService;
-
+    private final JwtUtil jwtUtil;
+    
     @PostMapping("/signup")
     public ResponseEntity<StatusResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) {
 
