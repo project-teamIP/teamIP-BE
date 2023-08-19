@@ -11,13 +11,15 @@ import java.time.LocalDateTime;
 public class MemoListResponseDto {
 
     private Long id;
+    private String nickname;
     private String title;
     private String content;
     private String date;
 
     @Builder
-    public MemoListResponseDto(Long id, String title, String content, LocalDateTime createdAt) {
+    public MemoListResponseDto(Long id, String nickname, String title, String content, LocalDateTime createdAt) {
         this.id = id;
+        this.nickname = nickname;
         this.title = title;
         this.content = content;
         if(createdAt!=null) {

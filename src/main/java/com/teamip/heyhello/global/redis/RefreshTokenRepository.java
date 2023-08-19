@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RefreshTokenRepository {
     private static final String RE_TKN = "refreshToken";
+    private static final String LAST_EXCHANGED = "lastExchanged";
     private static final String RTK_EXP_STR = "rtk_expTime";
     private static final Long EXP = 1000L * 60 * 60 * 24 * 14;
     private final RedisTemplate<String, String> redisTemplate;
@@ -22,6 +24,7 @@ public class RefreshTokenRepository {
         HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
         hashOperations.put(loginId, RE_TKN, rtk);
         hashOperations.put(loginId, RTK_EXP_STR, EXP + "");
+        hashOperations.put(loginId, LAST_EXCHANGED, LocalDateTime.now().toString());
         redisTemplate.expire(loginId, EXP, TimeUnit.SECONDS);
 
         return rtk;
@@ -35,7 +38,7 @@ public class RefreshTokenRepository {
         if (!rtk.equals(findRtk)) {
             return Optional.empty();
         }
-
+        hashOperations.put(loginId, LAST_EXCHANGED, LocalDateTime.now().toString());
         return Optional.of(new RefreshToken(loginId, findRtk, expStr));
     }
 
@@ -64,15 +67,17 @@ public class RefreshTokenRepository {
     }
 
     public int countRefreshTokens() {
+        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+        LocalDateTime threeHoursBefore = LocalDateTime.now().minusHours(3);
+
         Set<String> keys = redisTemplate.keys("*");
         int count = 0;
         for (String key : keys) {
             DataType keyType = redisTemplate.type(key);
             if (keyType == DataType.HASH) {
-                HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
                 Object refreshToken = hashOperations.get(key, RE_TKN);
-
-                if (refreshToken != null) {
+                LocalDateTime lastExchangedTime =LocalDateTime.parse((String)hashOperations.get(key, LAST_EXCHANGED));
+                if (refreshToken != null && lastExchangedTime.isAfter(threeHoursBefore)) {
                     count++;
                 }
             }
