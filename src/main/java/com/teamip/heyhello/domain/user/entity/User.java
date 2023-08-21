@@ -115,6 +115,9 @@ public class User {
         this.gender = Optional.ofNullable(updateProfileDto.getGender()).orElse(this.gender);
         this.country = Optional.ofNullable(updateProfileDto.getCountry()).orElse(this.country);
         if (updateProfileDto.getInterests() != null&& !updateProfileDto.getInterests().isEmpty()) {
+            if(updateProfileDto.getInterests().size()>=5){
+                throw new IllegalArgumentException("관심사는 최대 4개까지 선택가능합니다.");
+            }
             this.interests.clear();
             for (String interestName : updateProfileDto.getInterests()) {
                 this.interests.add(new Interest(interestName, this));

@@ -49,6 +49,10 @@ public class UserService {
         checkDuplicatedValue(user);
 
         if(signupRequestDto.getInterests() != null){
+            if(signupRequestDto.getInterests().size()>=5){
+                throw new IllegalArgumentException("관심사는 최대 4개까지 선택가능합니다.");
+            }
+
             List<Interest> interests = signupRequestDto.getInterests().stream()
                     .distinct()
                     .map(interestName -> new Interest(interestName, user))
