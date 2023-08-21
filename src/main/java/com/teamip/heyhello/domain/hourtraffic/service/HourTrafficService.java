@@ -18,15 +18,15 @@ public class HourTrafficService {
     private final HourTrafficRepository hourTrafficRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Scheduled(cron = "0 0 * * * *")
-    public void saveHourTraffic() {
-        // HourTraffic 엔티티를 생성하고 저장하는 로직
-        HourTraffic hourTraffic = HourTraffic.builder()
-                .userCount(refreshTokenRepository.countRefreshTokens())
-                .build();
+    // @Scheduled(cron = "0 0 * * * *")
+    // public void saveHourTraffic() {
+    //     // HourTraffic 엔티티를 생성하고 저장하는 로직
+    //     HourTraffic hourTraffic = HourTraffic.builder()
+    //             .userCount(refreshTokenRepository.countRefreshTokens())
+    //             .build();
 
-        hourTrafficRepository.save(hourTraffic);
-    }
+    //     hourTrafficRepository.save(hourTraffic);
+    // }
 
     public List<Integer> todayUserCountListByHour() {
         LocalDateTime now = LocalDateTime.now();
