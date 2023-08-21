@@ -6,13 +6,14 @@ import com.teamip.heyhello.domain.hourtraffic.service.HourTrafficService;
 import com.teamip.heyhello.domain.match.service.MatchDataService;
 import com.teamip.heyhello.domain.memo.service.MemoService;
 import com.teamip.heyhello.domain.user.dto.*;
+import com.teamip.heyhello.domain.user.entity.Interest;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.entity.UserStatus;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
-import com.teamip.heyhello.global.redis.TokenService;
 import com.teamip.heyhello.global.redis.RefreshTokenRepository;
+import com.teamip.heyhello.global.redis.TokenService;
 import com.teamip.heyhello.global.s3.S3UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,6 +49,20 @@ public class UserService {
         String defaultUrl = setRandomDefaultImageUrl();
         User user = User.of(signupRequestDto, passwordEncoder.encode(signupRequestDto.getPassword()), defaultUrl);
         checkDuplicatedValue(user);
+
+        if(signupRequestDto.getInterests() != null){
+            if(signupRequestDto.getInterests().size()>=5){
+                throw new IllegalArgumentException("관심사는 최대 4개까지 선택가능합니다.");
+            }
+
+            List<Interest> interests = signupRequestDto.getInterests().stream()
+                    .distinct()
+                    .map(interestName -> new Interest(interestName, user))
+                    .collect(Collectors.toList());
+
+            user.setInterests(interests);
+        }
+
         userRepository.save(user);
 
         return StatusResponseDto.builder()

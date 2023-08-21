@@ -3,6 +3,8 @@ package com.teamip.heyhello.domain.user.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 public class SignupRequestDto {
@@ -13,7 +15,7 @@ public class SignupRequestDto {
     private String country;
     private String gender;
     private String language;
-    private String interest;
+    private List<String> interests;
 
     public SignupRequestDto(String loginId, String password, String nickname) {
         this.loginId = loginId;

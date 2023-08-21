@@ -3,6 +3,8 @@ package com.teamip.heyhello.domain.user.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 public class UpdateProfileDto {
@@ -10,5 +12,5 @@ public class UpdateProfileDto {
     private String language;
     private String gender;
     private String country;
-    private String interest;
+    private List<String> interests;
 }
