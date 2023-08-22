@@ -15,21 +15,17 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class IoSignalService {
 
-    private final ObjectMapper objectMapper;
-
-    public void sendOfferMessage(SocketIOServer server, SocketIOClient client, String message) throws JsonProcessingException {
-        OfferAndAnswerDto offer = objectMapper.readValue(message, OfferAndAnswerDto.class);
-        server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.OFFER_KEY, client, offer);
+    public void sendOfferMessage(SocketIOServer server, SocketIOClient client, OfferAndAnswerDto message) throws JsonProcessingException {
+        server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.OFFER_KEY, client, message);
     }
 
-    public void sendAnswerMessage(SocketIOServer server, SocketIOClient client, String message) throws JsonProcessingException {
-        OfferAndAnswerDto answer = objectMapper.readValue(message, OfferAndAnswerDto.class);
-        server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.ANSWER_KEY, client, answer);
+    public void sendAnswerMessage(SocketIOServer server, SocketIOClient client, OfferAndAnswerDto message) throws JsonProcessingException {
+        server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.ANSWER_KEY, client, message);
     }
 
-    public void sendIceMessage(SocketIOServer server, SocketIOClient client, String message) throws JsonProcessingException {
-        CandidateDto candidateDto = objectMapper.readValue(message, CandidateDto.class);
-        server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.ICE_KEY, client, candidateDto);
+    public void sendIceMessage(SocketIOServer server, SocketIOClient client, CandidateDto message) throws JsonProcessingException {
+        server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.ICE_KEY, client, message);
     }
+
 }
 

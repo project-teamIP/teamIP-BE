@@ -28,7 +28,7 @@ public class BlockService {
 
         checkRequestValidity(requestUser, targetUser);
 
-        Block block = blockRepository.findByRequestUserAndTargetUser(requestUser, targetUser).orElse(null);
+        Block block = blockRepository.findByRequestUserIdAndTargetUserId(requestUser.getId(), targetUser.getId()).orElse(null);
         if (block != null) {
             blockRepository.delete(block);
             return StatusResponseDto.builder()

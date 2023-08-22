@@ -1,7 +1,5 @@
 package com.teamip.heyhello.domain.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.teamip.heyhello.domain.memo.entity.Memo;
 import com.teamip.heyhello.domain.user.dto.SignupRequestDto;
 import com.teamip.heyhello.domain.user.dto.UpdateProfileDto;
 import jakarta.persistence.*;
@@ -9,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,10 +44,6 @@ public class User {
 
     @Column(nullable = false)
     private Boolean isLocked;
-
-    @JsonManagedReference
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Memo> MemoList = new ArrayList<>();
 
     @Column(nullable = false)
     private String country;
@@ -126,7 +119,7 @@ public class User {
     }
 
     public void setStatus(UserStatus userStatus) {
-        this.status = status;
+        this.status = userStatus;
     }
 
     public void updateCleanPoint(Long point) {

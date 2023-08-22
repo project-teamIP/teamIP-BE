@@ -4,20 +4,21 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 public class MatchUserInfoDto {
 
-    private UUID roomId;
     private String nickname;
     private String country;
+    private List<String> interests = new ArrayList<>();
 
     @Builder
-    public MatchUserInfoDto(UUID roomId, String nickname, String country) {
-        this.roomId = roomId;
+    public MatchUserInfoDto(String nickname, String country, List<String>interests) {
         this.nickname = nickname;
         this.country = country;
+        this.interests = interests;
     }
 }
