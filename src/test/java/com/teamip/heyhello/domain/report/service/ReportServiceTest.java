@@ -53,11 +53,12 @@ class ReportServiceTest {
 
     @BeforeEach
     void init() {
-        SignupRequestDto signupRequestDto = new SignupRequestDto("test01@gmail.com", "DWQJIDJQOI390483018EADHJOIAJDOI2","닉네임1");
+        List<String> interests = List.of(new String[]{"운동", "독서"});
+        SignupRequestDto signupRequestDto = new SignupRequestDto("test01@gmail.com", "DWQJIDJQOI390483018EADHJOIAJDOI2","닉네임1","한국","남성","KOREAN",interests);
         String encoded = signupRequestDto.getPassword()+"123";
         requestUser = User.of(signupRequestDto, encoded, "http://sample.com/1");
 
-        SignupRequestDto signupRequestDto2 = new SignupRequestDto("test02@gmail.com", "DWQJIDJQOI345t3rgf4IAJDOI2","닉네임2");
+        SignupRequestDto signupRequestDto2 = new SignupRequestDto("test02@gmail.com", "DWQJIDJQOI345t3rgf4IAJDOI2","닉네임2","한국","남성","KOREAN",interests);
         String encoded2 = signupRequestDto.getPassword()+"123";
         targetUser = User.of(signupRequestDto2, encoded2, "http://sample.com/2");
 
