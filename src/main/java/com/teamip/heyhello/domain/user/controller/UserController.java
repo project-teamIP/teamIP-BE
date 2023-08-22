@@ -152,4 +152,9 @@ public class UserController {
     public ResponseEntity<DashBoardResponseDto> getDashBoardInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return ResponseEntity.ok(userService.getDashBoardInfo(userDetails));
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<DashBoardResponseDto> getDashBoard(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(userService.getDashBordData(userDetails));
+    }
 }

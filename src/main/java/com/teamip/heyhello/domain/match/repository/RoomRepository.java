@@ -14,6 +14,7 @@ public interface RoomRepository extends JpaRepository<MatchRoom, Long> {
     Optional<MatchRoom> findByRoomName(UUID sessionId);
 
     List<MatchRoom> findTop4ByUser1OrUser2OrderByCreatedAtDesc(User user1, User user2);
+    // select * from
 
     Page<MatchRoom> findByUser1OrUser2(User user1, User user2, Pageable pageable);
 }

@@ -31,4 +31,12 @@ public class MemoListResponseDto {
             this.date = "01/01";
         }
     }
+
+    public MemoListResponseDto(Long id, String nickname, String title, String content, String date) {
+        this.id = id;
+        this.nickname = nickname;
+        this.title = title;
+        this.content = content;
+        this.date = date;
+    }
 }
