@@ -18,6 +18,7 @@ public class MypageResponseDto {
     private List<String> interests;
     private String language;
     private String image;
+    private Long cleanPoint;
 
     @Builder
     private MypageResponseDto(User user) {
@@ -27,6 +28,7 @@ public class MypageResponseDto {
         this.interests = user.getInterests().stream().map(Interest::getName).collect(Collectors.toList());
         this.language = user.getLanguage();
         this.image = user.getImage();
+        this.cleanPoint = user.getCleanPoint();
     }
 
     public static MypageResponseDto of(User user) {

@@ -14,11 +14,13 @@ public class MatchUserInfoDto {
     private String nickname;
     private String country;
     private List<String> interests = new ArrayList<>();
+    private Long cleanPoint;
 
     @Builder
-    public MatchUserInfoDto(String nickname, String country, List<String>interests) {
+    public MatchUserInfoDto(String nickname, String country, List<String>interests, Long cleanPoint) {
         this.nickname = nickname;
         this.country = country;
         this.interests = interests;
+        this.cleanPoint = cleanPoint;
     }
 }
