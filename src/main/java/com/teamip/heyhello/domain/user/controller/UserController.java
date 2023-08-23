@@ -9,7 +9,6 @@ import com.teamip.heyhello.domain.user.service.KakaoService;
 import com.teamip.heyhello.domain.user.service.UserService;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
-import com.teamip.heyhello.global.redis.RefreshTokenRepository;
 import com.teamip.heyhello.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,14 +27,14 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-public class UserController {
+public class UserController implements TestController {
 
     private final UserService userService;
     private final KakaoService kakaoService;
     private final GoogleService googleService;
     private final BuddyService buddyService;
     private final JwtUtil jwtUtil;
-    
+
     @PostMapping("/signup")
     public ResponseEntity<StatusResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) {
 
