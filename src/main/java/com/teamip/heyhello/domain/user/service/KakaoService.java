@@ -13,6 +13,7 @@ import com.teamip.heyhello.global.redis.RefreshTokenRepository;
 import com.teamip.heyhello.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -39,10 +40,19 @@ public class KakaoService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Value("${social.kakao.client-id}")
+    private String CLIENT_ID;
+
+    @Value("${social.kakao.redirect-uri}")
+    private String REDIRECT_URI;
+
+    @Value("${social.kakao.auth-uri}")
+    private String AUTH_URI;
+
     public ResponseEntity<LoginResponseDto> kakaoLogin(String code) throws JsonProcessingException {
-        String loginUrl= "http://localhost:8080/api/users/login/kakao";
-        String accessToken = getToken(code, loginUrl);
-        log.info("Kakao's accessToken : "+accessToken);
+
+        String accessToken = getToken(code, REDIRECT_URI);
+        log.info("Kakao's accessToken : " + accessToken);
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
 
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
@@ -55,7 +65,7 @@ public class KakaoService {
         return ResponseEntity.ok().headers(headers).body(LoginResponseDto.builder().user(kakaoUser).build());
     }
 
-    private String getToken(String code, String loginUrl) throws JsonProcessingException {
+    private String getToken(String code, String url) throws JsonProcessingException {
         URI uri = UriComponentsBuilder
                 .fromUriString("https://kauth.kakao.com")
                 .path("/oauth/token")
@@ -68,8 +78,8 @@ public class KakaoService {
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "e246974818ac1703603a86f1db380f07");
-        body.add("redirect_uri", loginUrl);
+        body.add("client_id", CLIENT_ID);
+        body.add("redirect_uri", url);
         body.add("code", code);
 
         RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
@@ -168,8 +178,7 @@ public class KakaoService {
 
     public ResponseEntity<StatusResponseDto> getKakaoTokenForWithdrawal(String code) throws JsonProcessingException {
         //TODO 나중에 프론트에서 탈퇴 페이지 URI로 추가 등록해서 교체해야함
-        String authUrl= "http://localhost:8080/api/users/withdrawal/social";
-        String accessToken = getToken(code, authUrl);
+        String accessToken = getToken(code, AUTH_URI);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Token", accessToken);
         return ResponseEntity.ok().headers(headers).build();
