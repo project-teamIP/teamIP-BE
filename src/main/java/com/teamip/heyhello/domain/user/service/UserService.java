@@ -9,6 +9,7 @@ import com.teamip.heyhello.domain.user.dto.*;
 import com.teamip.heyhello.domain.user.entity.Interest;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.entity.UserStatus;
+import com.teamip.heyhello.domain.user.repository.DashBoardRepository;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
@@ -44,6 +45,7 @@ public class UserService {
     private final MatchDataService matchDataService;
     private final MemoService memoService;
     private final HourTrafficService hourTrafficService;
+    private final DashBoardRepository dashBoardRepository;
 
     public StatusResponseDto signup(SignupRequestDto signupRequestDto) {
         String defaultUrl = setRandomDefaultImageUrl();
@@ -224,5 +226,10 @@ public class UserService {
                 .userCount(countActiveUser())
                 .userCountList(hourTrafficService.todayUserCountListByHour())
                 .build();
+    }
+
+    public DashBoardResponseDto getDashBordData(UserDetailsImpl userDetails) {
+
+        return dashBoardRepository.getDashBoard(userDetails);
     }
 }

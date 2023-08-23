@@ -37,4 +37,14 @@ public class MatchRoomResponseDto {
             this.time = "00:00:00";
         }
     }
+
+    public MatchRoomResponseDto(String image, String nickname, String country, String date, String time) {
+        this.image = image;
+        this.nickname = nickname;
+        this.country = country;
+        this.date = date;
+        this.time = time;
+
+    }
+
 }

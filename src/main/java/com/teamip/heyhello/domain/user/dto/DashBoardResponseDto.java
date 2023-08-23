@@ -16,6 +16,12 @@ public class DashBoardResponseDto {
     private int userCount;
     private List<Integer> countByHour;
 
+    // user정보로 가져오지만 user정보는 select하지 않는
+    // select matchroom.image, nickname, createdAt, closedAt, country / memolist.id, nickname, title, content, createdAt
+    // or 객체로 묶여서 오는지
+
+
+
     @Builder
     public DashBoardResponseDto(List<MatchRoomResponseDto> matchRoomList, List<MemoListResponseDto> memoList, int userCount, List<Integer> userCountList) {
         this.matchRoomInfos = matchRoomList;
