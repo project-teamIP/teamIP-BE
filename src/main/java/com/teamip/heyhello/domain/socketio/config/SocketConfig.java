@@ -17,7 +17,6 @@ public class SocketConfig {
 
     private final WebsocketAddMappingSupporter mappingSupporter;
     private final WebSocketConnectController connectController;
-    private final WebSocketDisconnectController disConnectController;
     private final SocketExceptionListener exceptionListener;
     private final SocketProperties socketProperties;
 
@@ -30,7 +29,6 @@ public class SocketConfig {
         SocketIOServer server = new SocketIOServer(config);
         mappingSupporter.addListeners(server);
         server.addConnectListener(connectController::onConnect);
-        server.addDisconnectListener(disConnectController::onDisConnect);
         return server;
     }
 }

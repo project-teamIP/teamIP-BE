@@ -14,4 +14,6 @@ public class SocketProperty {
     public static final String ICE_KEY = "ice";
     public static final String ERROR_KEY = "error";
     public static final String ENDCALL_KEY = "end";
+    public static final String MATCH_USER_INFO_KEY = "matchUserInfo";
+    public static final String ANSWER_USER_INFO_KEY = "answerUserInfo";
 }

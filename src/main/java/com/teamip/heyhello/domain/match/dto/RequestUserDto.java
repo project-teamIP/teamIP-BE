@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class RequestUserDto {
-    private Long userId;
+    private String loginId;
     @Builder
-    public RequestUserDto(Long userId) {
-        this.userId = userId;
+    public RequestUserDto(String loginId) {
+        this.loginId = loginId;
     }
 }

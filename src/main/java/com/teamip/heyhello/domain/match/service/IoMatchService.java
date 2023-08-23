@@ -2,19 +2,22 @@ package com.teamip.heyhello.domain.match.service;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamip.heyhello.domain.block.entity.Block;
 import com.teamip.heyhello.domain.block.repository.BlockRepository;
+import com.teamip.heyhello.domain.match.dto.MatchUserInfoDto;
 import com.teamip.heyhello.domain.match.dto.RequestUserDto;
 import com.teamip.heyhello.domain.match.dto.WaitUserDto;
 import com.teamip.heyhello.domain.match.entity.MatchRoom;
-import com.teamip.heyhello.domain.match.entity.MatchRoomList;
-import com.teamip.heyhello.domain.match.entity.MatchUserList;
 import com.teamip.heyhello.domain.match.repository.RoomRepository;
 import com.teamip.heyhello.domain.socketio.socket.SocketProperty;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
+import com.teamip.heyhello.global.redis.WaitUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,49 +27,55 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class IoMatchService {
-    private final MatchUserList matchUserList;
-    private final MatchRoomList matchRoomList;
     private final UserRepository userRepository;
     private final BlockRepository blockRepository;
     private final RoomRepository roomRepository;
+    private final ObjectMapper objectMapper;
+    private final WaitUserRepository waitUserRepository;
 
     public synchronized void findMatch(SocketIOServer server, SocketIOClient client, RequestUserDto requestUserDto) {
-        User user = userRepository.findById(requestUserDto.getUserId()).orElseThrow(() -> new NullPointerException("없는 유저입니다."));
+        User user = userRepository.findByLoginId(requestUserDto.getLoginId()).orElseThrow(() -> new NullPointerException("없는 유저입니다."));
         log.info("현재 해당 서버 세션 수 = {}", server.getAllClients().size());
-        if (matchUserList.getLists().isEmpty()) {
-            addUserToQueueIfEmpty(client, user);
+        if (waitUserRepository.isWaitUserListEmpty()) {
+            addUserToSet(client, user);
             return;
         }
-        if (isUserAlreadyInCollection(client, user)) {
+        if (isUserAlreadyInCollection(client)) {
             return;
         }
         ;
         searchUserFromCondition(server, client, user);
     }
 
-    private boolean isUserAlreadyInCollection(SocketIOClient client, User user) {
-        if (isUserOrSessionInList(client, user)) {
+    private boolean isUserAlreadyInCollection(SocketIOClient client) {
+        if (isClientInList(client)) {
             client.sendEvent("error", "이미 대기열에 등록된 사용자입니다.");
             return true;
         }
         return false;
     }
 
-    private boolean isUserOrSessionInList(SocketIOClient client, User user) {
-        return matchUserList.getLists().containsKey(client.getSessionId());
+    private boolean isClientInList(SocketIOClient client) {
+        for (ZSetOperations.TypedTuple<WaitUserDto> tuple : waitUserRepository.getWaitUserList()) {
+            WaitUserDto waitUserDto = tuple.getValue();
+            if (waitUserDto.getSessionId().equals(client.getSessionId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private void addUserToQueueIfEmpty(SocketIOClient client, User user) {
-        matchUserList.getLists().put(client.getSessionId(),
-                WaitUserDto.builder()
-                        .user(user)
-                        .sessionId(client.getSessionId())
-                        .build());
+    private void addUserToSet(SocketIOClient client, User user) {
+        waitUserRepository.addWaitUser(WaitUserDto.builder()
+                .user(user)
+                .sessionId(client.getSessionId())
+                .build());
         client.sendEvent("wait", "적절한 매칭 상대가 없습니다. 조금 더 기다려주세요.");
     }
+
     public void cancelFindMatch(SocketIOServer server, SocketIOClient client, String message) {
-        if (matchUserList.getLists().containsKey(client.getSessionId())) {
-            matchUserList.getLists().remove(client.getSessionId());
+        if (isClientInList(client)) {
+            waitUserRepository.removeWaitUserAtList(client);
             client.sendEvent(SocketProperty.CANCEL_KEY, "매칭 취소가 완료되었습니다.");
         } else {
             client.sendEvent(SocketProperty.ERROR_KEY, "현재 매칭 중이 아닙니다.");
@@ -75,47 +84,42 @@ public class IoMatchService {
     }
 
     private void searchUserFromCondition(SocketIOServer server, SocketIOClient client, User requestUser) {
-
-        for (WaitUserDto waitUserDto : matchUserList.getLists().values()) {
-            if (isNotSameLanguage(waitUserDto.getUser(), requestUser) && isNotBlockedEach(waitUserDto.getUser(), requestUser)) {
+        for (ZSetOperations.TypedTuple<WaitUserDto> tuple : waitUserRepository.getWaitUserList()) {
+            WaitUserDto waitUserDto = tuple.getValue();
+            if (isNotSameLanguage(waitUserDto.getLanguage(), requestUser.getLanguage()) && isNotBlockedEach(waitUserDto.getUserId(), requestUser.getId())) {
                 UUID uuid = createRoomAndEnteredEachUser(server, client, requestUser, waitUserDto);
                 client.sendEvent("success", "매치완료. offer를 발송합니다.");
                 return;
             }
         }
-        matchUserList.getLists().put(client.getSessionId(),
-                WaitUserDto.builder()
-                        .user(requestUser)
-                        .sessionId(client.getSessionId())
-                        .build());
+        addUserToSet(client, requestUser);
         client.sendEvent("wait", "적절한 매칭 상대가 없습니다. 조금 더 기다려주세요.");
     }
 
     private UUID createRoomAndEnteredEachUser(SocketIOServer server, SocketIOClient client, User requestUser, WaitUserDto waitUserDto) {
-        matchUserList.getLists().remove(waitUserDto.getSessionId());
+        waitUserRepository.removeWaitUserAtList(waitUserDto);
         UUID uuid = UUID.randomUUID();
         SocketIOClient waitClient = server.getClient(waitUserDto.getSessionId());
         waitClient.joinRoom(uuid.toString());
         client.joinRoom(uuid.toString());
         MatchRoom matchRoom = MatchRoom.builder()
-                .user1(waitUserDto.getUser())
+                .user1(userRepository.findById(waitUserDto.getUserId()).orElseThrow(()-> new NullPointerException("해당 유저를 찾을 수 없습니다.")))
                 .user1Client(waitClient.getSessionId())
                 .user2(requestUser)
                 .user2Client(client.getSessionId())
                 .roomName(uuid)
                 .build();
         roomRepository.save(matchRoom);
-        matchRoomList.getLists().put(uuid, matchRoom);
         return uuid;
     }
 
-    private boolean isNotSameLanguage(User waitUser, User requestUser) {
-        return !waitUser.getLanguage().equals(requestUser.getLanguage());
+    private boolean isNotSameLanguage(String waitUserLanguage, String requestUserLanguage) {
+        return !requestUserLanguage.equals(waitUserLanguage);
     }
 
-    private boolean isNotBlockedEach(User waitUser, User requestUser) {
-        Block block1 = blockRepository.findByRequestUserAndTargetUser(requestUser, waitUser).orElse(null);
-        Block block2 = blockRepository.findByRequestUserAndTargetUser(waitUser, requestUser).orElse(null);
+    private boolean isNotBlockedEach(Long waitUserId, Long requestUserId) {
+        Block block1 = blockRepository.findByRequestUserIdAndTargetUserId(requestUserId, waitUserId).orElse(null);
+        Block block2 = blockRepository.findByRequestUserIdAndTargetUserId(waitUserId, requestUserId).orElse(null);
         if (block1 != null || block2 != null) {
             return false;
         }
@@ -123,26 +127,34 @@ public class IoMatchService {
     }
 
     @Transactional
-    public void endCall(SocketIOServer server, SocketIOClient client, String message) {
+    public void endCall(SocketIOServer server, SocketIOClient client) {
         MatchRoom matchRoom = getMatchRoomFromClientInfo(client);
+        if(matchRoom==null){
+            client.sendEvent(SocketProperty.ERROR_KEY, "참여 중인 방이 없습니다.");
+        }
         if (matchRoom.isActive()) {
             matchRoom.updateIsActiveToFalse();
             server.getRoomOperations(matchRoom.getRoomName().toString()).sendEvent(SocketProperty.ENDCALL_KEY, "대화가 종료되었어요!");
             server.getClient(matchRoom.getUser1Client()).disconnect();
             server.getClient(matchRoom.getUser2Client()).disconnect();
         } else {
-            client.sendEvent(SocketProperty.ENDCALL_KEY, "이미 종료된 대화방입니다.");
+            client.sendEvent(SocketProperty.ERROR_KEY, "이미 종료된 대화방입니다.");
         }
-        matchRoomList.getLists().remove(matchRoom.getRoomName());
     }
 
-    private MatchRoom getMatchRoomFromClientInfo(SocketIOClient client) {
-        MatchRoom matchRoom = roomRepository.findByRoomName(
+    public MatchRoom getMatchRoomFromClientInfo(SocketIOClient client) {
+        return roomRepository.findByRoomName(
                         UUID.fromString(client.getAllRooms()
                                 .stream()
                                 .toList()
                                 .get(1)))
-                .orElseThrow(() -> new NullPointerException("해당 방 정보를 찾을 수 없습니다"));
-        return matchRoom;
+                .orElse(null);
+    }
+
+    public void sendMatchUserInfo(SocketIOServer server, SocketIOClient client, MatchUserInfoDto message) throws JsonProcessingException {
+        server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.MATCH_USER_INFO_KEY, client, message);
+    }
+    public void sendAnswerUserInfo(SocketIOServer server, SocketIOClient client, MatchUserInfoDto message) throws JsonProcessingException {
+        server.getRoomOperations(client.getAllRooms().stream().toList().get(1)).sendEvent(SocketProperty.ANSWER_USER_INFO_KEY, client, message);
     }
 }

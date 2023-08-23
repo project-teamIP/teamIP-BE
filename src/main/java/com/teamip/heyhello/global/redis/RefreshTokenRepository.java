@@ -1,6 +1,7 @@
 package com.teamip.heyhello.global.redis;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,10 +13,12 @@ import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class RefreshTokenRepository {
     private static final String RE_TKN = "refreshToken";
     private static final String LAST_EXCHANGED = "lastExchanged";
     private static final String RTK_EXP_STR = "rtk_expTime";
+    private static final Integer MINUS_HOUR = 3;
     private static final Long EXP = 1000L * 60 * 60 * 24 * 14;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -68,8 +71,7 @@ public class RefreshTokenRepository {
 
     public int countRefreshTokens() {
         HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-        LocalDateTime threeHoursBefore = LocalDateTime.now().minusHours(3);
-
+        LocalDateTime threeHoursBefore = LocalDateTime.now().minusHours(MINUS_HOUR);
         Set<String> keys = redisTemplate.keys("*");
         int count = 0;
         for (String key : keys) {
