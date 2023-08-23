@@ -128,9 +128,9 @@ public class UserController {
         if ("kakao".equals(provider)) {
             return ResponseEntity.ok(kakaoService.kakaoWithdrawal(userDetails, token, atk));
         }
-//        if ("google".equals(provider)) {
-//        //    return googleService.googleWithdrawal(userDetails, accessToken);
- //       }
+        else if ("google".equals(provider)) {
+            return ResponseEntity.ok(googleService.googleWithdrawal(userDetails, token, atk));
+        }
         else {
             throw new IllegalArgumentException("유효한 provider가 아닙니다.");
         }
