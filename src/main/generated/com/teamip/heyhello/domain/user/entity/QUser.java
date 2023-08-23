@@ -30,7 +30,7 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath image = createString("image");
 
-    public final StringPath interest = createString("interest");
+    public final ListPath<Interest, QInterest> interests = this.<Interest, QInterest>createList("interests", Interest.class, QInterest.class, PathInits.DIRECT2);
 
     public final BooleanPath isGoogle = createBoolean("isGoogle");
 
@@ -41,8 +41,6 @@ public class QUser extends EntityPathBase<User> {
     public final StringPath language = createString("language");
 
     public final StringPath loginId = createString("loginId");
-
-    public final ListPath<com.teamip.heyhello.domain.memo.entity.Memo, com.teamip.heyhello.domain.memo.entity.QMemo> MemoList = this.<com.teamip.heyhello.domain.memo.entity.Memo, com.teamip.heyhello.domain.memo.entity.QMemo>createList("MemoList", com.teamip.heyhello.domain.memo.entity.Memo.class, com.teamip.heyhello.domain.memo.entity.QMemo.class, PathInits.DIRECT2);
 
     public final StringPath nickname = createString("nickname");
 
