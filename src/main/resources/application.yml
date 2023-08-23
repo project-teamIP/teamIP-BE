@@ -64,3 +64,14 @@ jasypt:
 
 socket:
   port: 5004
+
+
+social:
+   kakao:
+     client-id: ENC(TqalN9x0wTADONGNXN6AcCQWT6HuxzfKQdtXsIlQxIPf562OLIUJlBRG9u7LIjPp1Cc0496XwdJnwUkOnXCHPx7c6547JlbXkx0oypARYqc=)
+     redirect-uri: ENC(r9fN46R0g/tVARzVKcCcM+K9f0J5ar+/n7fnVCV/mmIbIx92CvoFabRr9btMPIeiwl3HfPaC30XCxZzBACNrHia2yu/wQnPWrUjpxqe3wro=)
+     auth-uri: ENC(Jpy35lbk0cD9xoGqqeU6breLKbovbezUCS0rXKgvxpX0pndLl9vXbqbKvGl/7CjLhAEnjsmv/0yaKTv1PSS3vs9jtWBCj9NiYhyMPsydX89Rk2ZoU2TjLiEXtTxNddJc)
+   google:
+     client_id: ENC(rRr8o05Yy9nVMD46HV4sG9De0AyBvV8JuKc9ZJHmc/FLIE68ghFRWtBq5m5xxQds05lp+APApMgQCun+HeAw6UAvHO1MiSTCNMIi7s2k162HSp62uH5jXyunkfEN/ws2MgULo4UNNFvc3iz8tp3wMQ==)
+     client_secret: ENC(IJ+TnBmXJQuPOxhEk3g3pJ3HA4qR7iexelZ2TdO1FKV6NUWK6bwhwBpHxUp9j4VTgdAn1EaiVc0Elm16nk1p3Q7LJ0roGi8v5Hk7zHpdbio=)
+     redirect_uri: ENC(JKtyXdNIhlK7+zewN+/btPLOdz6BJqA/DCPWZqFQiIQzI7uY9tEuX8+n6pFGnApWxXivb2AY7goCHV7wdqYUYqgSWZ8BgAkDGjX0LmJPUAo=)

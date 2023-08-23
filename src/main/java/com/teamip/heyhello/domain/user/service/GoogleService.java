@@ -7,11 +7,14 @@ import com.teamip.heyhello.domain.user.dto.GoogleUserInfoDto;
 import com.teamip.heyhello.domain.user.dto.LoginResponseDto;
 import com.teamip.heyhello.domain.user.entity.User;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
+import com.teamip.heyhello.global.auth.UserDetailsImpl;
+import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.redis.RefreshTokenRepository;
 import com.teamip.heyhello.global.redis.TokenResponse;
 import com.teamip.heyhello.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +40,18 @@ public class GoogleService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Value("${social.google.client-id}")
+    private String CLIENT_ID;
+
+    @Value("${social.google.client_secret}")
+    private String CLIENT_SECRET;
+
+    @Value("${social.google.redirect_uri}")
+    private String REDIRECT_URI;
+
     public ResponseEntity<LoginResponseDto> googleLogin(String code) throws JsonProcessingException {
         String googleaccessToken = getToken(code);
-
+        log.info("google accessToken: " + googleaccessToken);
         GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(googleaccessToken);
 
         User googleUser = registerGoogleUserIfNeeded(googleUserInfo);
@@ -65,9 +77,9 @@ public class GoogleService {
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "366803150284-5hqk1vqq15s6aqjfa3d9om2j1t9c2r0u.apps.googleusercontent.com");
-        body.add("client_secret", "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");
-        body.add("redirect_uri", "http://localhost:8080/api/users/login/google");
+        body.add("client_id", CLIENT_ID);
+        body.add("client_secret", CLIENT_SECRET);
+        body.add("redirect_uri", REDIRECT_URI);
         body.add("code", code);
 
         RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
@@ -133,28 +145,20 @@ public class GoogleService {
         return googleUser;
     }
 
-//    public void googleLogout(String accessToken) {
-//        URI uri = UriComponentsBuilder
-//                .fromUriString("https://accounts.google.com")
-//                .path("/o/oauth2/revoke")
-//                .queryParam("token", accessToken)
-//                .encode()
-//                .build()
-//                .toUri();
-//
-//        restTemplate.postForLocation(uri, null);
-//    }
 
-    public void googleWithdrawal(String accessToken) {
+    public StatusResponseDto googleWithdrawal(UserDetailsImpl userDetails, String token,String atk) {
+
         URI uri = UriComponentsBuilder
                 .fromUriString("https://accounts.google.com")
                 .path("/o/oauth2/revoke")
-                .queryParam("token", accessToken)
+                .queryParam("token", token)
                 .encode()
                 .build()
                 .toUri();
 
         restTemplate.postForLocation(uri, null);
+
+        return userService.withdrawal(userDetails, atk);
     }
 
 }
