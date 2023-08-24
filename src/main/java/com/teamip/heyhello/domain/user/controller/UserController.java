@@ -27,7 +27,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-public class UserController implements TestController {
+public class UserController implements UserSwaggerController {
 
     private final UserService userService;
     private final KakaoService kakaoService;

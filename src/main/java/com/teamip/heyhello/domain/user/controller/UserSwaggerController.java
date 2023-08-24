@@ -6,11 +6,13 @@ import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.swagger.SwaggerController;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-public interface TestController extends SwaggerController {
+public interface UserSwaggerController extends SwaggerController {
     @Operation(summary = "회원 가입", description = "이메일을 통한 회원 가입 요청 api.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "정상 응답", content =
@@ -81,8 +83,8 @@ public interface TestController extends SwaggerController {
     @Operation(summary = "구글 로그인", description = "구글 로그인 api.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "정상 응답", content =
-                    { @Content(mediaType = "application/json", schema =
-                    @Schema(implementation = BuddyResponseDto.class)) })
+                    { @Content(mediaType = "application/json", array = @ArraySchema(schema =
+                    @Schema(implementation = BuddyResponseDto.class))) })
     })
     public ResponseEntity<Page<BuddyResponseDto>> getBuddies(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                              @PageableDefault(page = 1, size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable);
