@@ -25,13 +25,19 @@ public class TokenService {
 
         return refreshTokenRepository.createAndSave(loginId);
     }
+    public String renewRefreshToken(String loginId, String refreshToken) {
+
+        return refreshTokenRepository.renewAndSave(loginId, refreshToken);
+    }
 
 
     public String generateAccessToken(String loginId) {
 
         return jwtUtil.createAccessToken(loginId);
     }
-
+    public String getRefreshToken(String loginId){
+        return refreshTokenRepository.findRefreshTokenByLoginId(loginId);
+    }
     public StatusResponseDto getAtkByRtk(UserDetailsImpl userDetails, String rtk, HttpServletResponse response) {
         String loginId = userDetails.getUsername();
         RefreshToken refreshToken = refreshTokenRepository.findByLoginIdAndRefreshToken(loginId, rtk).orElseThrow(

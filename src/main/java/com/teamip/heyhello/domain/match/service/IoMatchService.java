@@ -40,22 +40,31 @@ public class IoMatchService {
             addUserToSet(client, user);
             return;
         }
-        if (isUserAlreadyInCollection(client)) {
+        if (isAlreadyExistInCollection(client, user)) {
             return;
         }
         ;
         searchUserFromCondition(server, client, user);
     }
 
-    private boolean isUserAlreadyInCollection(SocketIOClient client) {
-        if (isClientInList(client)) {
+    private boolean isAlreadyExistInCollection(SocketIOClient client, User user) {
+        if (isUserAlreadyExistInWaitList(user)) {
             client.sendEvent("error", "이미 대기열에 등록된 사용자입니다.");
             return true;
         }
         return false;
     }
 
-    private boolean isClientInList(SocketIOClient client) {
+    private boolean isUserAlreadyExistInWaitList(User user) {
+        for (ZSetOperations.TypedTuple<WaitUserDto> tuple : waitUserRepository.getWaitUserList()) {
+            WaitUserDto waitUserDto = tuple.getValue();
+            if (waitUserDto.getUserId().equals(user.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean isUserAlreadyExistInWaitList(SocketIOClient client) {
         for (ZSetOperations.TypedTuple<WaitUserDto> tuple : waitUserRepository.getWaitUserList()) {
             WaitUserDto waitUserDto = tuple.getValue();
             if (waitUserDto.getSessionId().equals(client.getSessionId())) {
@@ -74,7 +83,7 @@ public class IoMatchService {
     }
 
     public void cancelFindMatch(SocketIOServer server, SocketIOClient client, String message) {
-        if (isClientInList(client)) {
+        if (isUserAlreadyExistInWaitList(client)) {
             waitUserRepository.removeWaitUserAtList(client);
             client.sendEvent(SocketProperty.CANCEL_KEY, "매칭 취소가 완료되었습니다.");
         } else {

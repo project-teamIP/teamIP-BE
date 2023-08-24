@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String loginId = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         String accessToken = tokenService.generateAccessToken(loginId);
-        String refreshToken = tokenService.generateRefreshToken(loginId);
+        String refreshToken = createOrRenewRefreshToken(loginId);
 
         response.setHeader("AccessToken", accessToken);
         response.setHeader("RefreshToken", refreshToken);
@@ -66,6 +66,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         returnStatusResponse(response, responseDto, HttpStatus.OK);
     }
 
+
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         log.info(failed.getMessage());
@@ -75,6 +76,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         returnStatusResponse(response, responseDto, HttpStatus.UNAUTHORIZED);
     }
 
+    private String createOrRenewRefreshToken(String loginId) {
+        String refreshToken = tokenService.getRefreshToken(loginId);
+        if(refreshToken==null) {
+            refreshToken = tokenService.generateRefreshToken(loginId);
+        } else{
+            tokenService.renewRefreshToken(loginId, refreshToken);
+        }
+        return refreshToken;
+    }
     private void isUserBlocked(String loginId) throws IOException, IllegalAccessException {
         User user = userRepository.findByLoginId(loginId).orElseThrow(
                 () -> new IOException()

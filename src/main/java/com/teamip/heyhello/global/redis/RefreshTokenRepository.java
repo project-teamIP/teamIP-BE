@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Ref;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +33,19 @@ public class RefreshTokenRepository {
 
         return rtk;
     }
+    public String renewAndSave(String loginId, String refreshToken){
+        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+        hashOperations.put(loginId, RE_TKN, refreshToken);
+        hashOperations.put(loginId, RTK_EXP_STR, EXP + "");
+        hashOperations.put(loginId, LAST_EXCHANGED, LocalDateTime.now().toString());
+        redisTemplate.expire(loginId, EXP, TimeUnit.SECONDS);
 
+        return refreshToken;
+    }
+    public String findRefreshTokenByLoginId(String loginId){
+        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+        return (String) hashOperations.get(loginId, RE_TKN);
+    }
     public Optional<RefreshToken> findByLoginIdAndRefreshToken(String loginId, String rtk) {
         HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
         String findRtk = (String) hashOperations.get(loginId, RE_TKN);
