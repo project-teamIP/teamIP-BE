@@ -35,7 +35,6 @@ public class IoMatchService {
 
     public synchronized void findMatch(SocketIOServer server, SocketIOClient client, RequestUserDto requestUserDto) {
         User user = userRepository.findByLoginId(requestUserDto.getLoginId()).orElseThrow(() -> new NullPointerException("없는 유저입니다."));
-        log.info("현재 해당 서버 세션 수 = {}", server.getAllClients().size());
         if (waitUserRepository.isWaitUserListEmpty()) {
             addUserToSet(client, user);
             return;
