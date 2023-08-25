@@ -10,7 +10,7 @@ import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.redis.RefreshTokenRepository;
-import com.teamip.heyhello.global.redis.TokenResponse;
+import com.teamip.heyhello.global.redis.TokenService;
 import com.teamip.heyhello.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +39,7 @@ public class GoogleService {
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenService tokenService;
 
     @Value("${social.google.client-id}")
     private String CLIENT_ID;
@@ -57,10 +58,9 @@ public class GoogleService {
         User googleUser = registerGoogleUserIfNeeded(googleUserInfo);
 
         String jwtAccessToken = jwtUtil.createAccessToken(googleUser.getLoginId());
+        String jwtRefreshToken = tokenService.createOrRenewRefreshToken(googleUser.getLoginId());
 
-        String refreshToken = refreshTokenRepository.createAndSave(googleUser.getLoginId());
-
-        HttpHeaders headers = userService.createTokenHeader(jwtAccessToken, refreshToken);
+        HttpHeaders headers = userService.createTokenHeader(jwtAccessToken, jwtRefreshToken);
         return ResponseEntity.ok().headers(headers).body(LoginResponseDto.builder().user(googleUser).build());
     }
 

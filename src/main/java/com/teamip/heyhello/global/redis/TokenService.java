@@ -55,7 +55,15 @@ public class TokenService {
                 .message("AccessToken 발행 성공")
                 .build();
     }
-
+    public String createOrRenewRefreshToken(String loginId) {
+        String refreshToken = getRefreshToken(loginId);
+        if(refreshToken==null) {
+            refreshToken = generateRefreshToken(loginId);
+        } else{
+            renewRefreshToken(loginId, refreshToken);
+        }
+        return refreshToken;
+    }
     public StatusResponseDto logoutWithAtk(String atk, UserDetailsImpl userDetails) {
         String loginId = userDetails.getUsername();
         refreshTokenRepository.deleteByRefreshToken(loginId);
