@@ -11,6 +11,7 @@ import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,7 @@ public class UserController implements UserSwaggerController {
     private final JwtUtil jwtUtil;
     @Override
     @PostMapping("/signup")
-    public ResponseEntity<StatusResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<StatusResponseDto> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.signup(signupRequestDto));
     }
