@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/email")
 @RequiredArgsConstructor
-public class EmailController {
+public class EmailController implements EmailSwaggerController {
     private final EmailService emailService;
+
+    @Override
     @PostMapping
     public String sendEmail(@RequestBody EmailRequestDto emailRequestDto) {
         return emailService.sendEmailToUser(emailRequestDto);

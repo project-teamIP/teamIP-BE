@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-public class MatchDataController {
+public class MatchDataController implements MatchDataSwaggerController{
 
     private final MatchDataService matchDataService;
 

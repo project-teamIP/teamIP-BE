@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class ReportController {
+public class ReportController implements ReportSwaggerController {
     private final ReportService reportService;
 
     @PostMapping("/api/users/report")

@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 @Slf4j
-public class BlockController {
+public class BlockController implements BlockSwaggerController {
     private final BlockService blockService;
 
+    @Override
     @PostMapping("/block/{nickname}")
     public ResponseEntity<StatusResponseDto> block(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                    @PathVariable String nickname) {

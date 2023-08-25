@@ -5,6 +5,11 @@ import com.teamip.heyhello.domain.memo.dto.MemoResponseDto;
 import com.teamip.heyhello.domain.memo.entity.Memo;
 import com.teamip.heyhello.domain.memo.service.MemoService;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -16,7 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class MemoController {
+public class MemoController implements MemoSwaggerController{
 
     private final MemoService memoService;
 

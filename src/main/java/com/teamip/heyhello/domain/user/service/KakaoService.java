@@ -10,6 +10,7 @@ import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.redis.RefreshTokenRepository;
+import com.teamip.heyhello.global.redis.TokenService;
 import com.teamip.heyhello.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class KakaoService {
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenService tokenService;
 
     @Value("${social.kakao.client-id}")
     private String CLIENT_ID;
@@ -58,10 +60,9 @@ public class KakaoService {
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
         String jwtAccessToken = jwtUtil.createAccessToken(kakaoUser.getLoginId());
+        String jwtRefreshToken = tokenService.createOrRenewRefreshToken(kakaoUser.getLoginId());
 
-        String jwtrefreshToken = refreshTokenRepository.createAndSave(kakaoUser.getLoginId());
-
-        HttpHeaders headers = userService.createTokenHeader(jwtAccessToken, jwtrefreshToken);
+        HttpHeaders headers = userService.createTokenHeader(jwtAccessToken, jwtRefreshToken);
         return ResponseEntity.ok().headers(headers).body(LoginResponseDto.builder().user(kakaoUser).build());
     }
 
