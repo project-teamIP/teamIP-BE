@@ -49,6 +49,7 @@ public class WaitUserRepository {
         if (userListSize == null || userListSize == 0) {
             return true;
         }
+        log.info("현재 대기자 수 = {}", userListSize);
         return false;
     }
 
