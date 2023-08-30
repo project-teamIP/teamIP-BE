@@ -23,7 +23,6 @@ public class SignupRequestDto {
     private String gender;
     @NotBlank
     private String language;
-    @NotBlank
     private List<String> interests;
 
     public SignupRequestDto(String loginId, String password, String nickname, String country, String gender, String language, List<String>interests) {
