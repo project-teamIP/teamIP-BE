@@ -105,7 +105,8 @@ public interface UserSwaggerController extends SwaggerController {
     })
     public ResponseEntity<UrlResponseDto> modifyProfileImage(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException;
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "profile", required = false)String profile) throws IOException;
 
     @Operation(summary = "카카오 로그인", description = "카카오 로그인 api.")
     @ApiResponses({

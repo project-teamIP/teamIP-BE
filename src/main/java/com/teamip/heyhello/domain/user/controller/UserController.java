@@ -97,9 +97,9 @@ public class UserController implements UserSwaggerController {
     @PutMapping("/image")
     public ResponseEntity<UrlResponseDto> modifyProfileImage(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
-
-        return ResponseEntity.ok(userService.modifyProfileImage(userDetails, image));
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "profile", required = false)String profile) throws IOException {
+        return ResponseEntity.ok(userService.modifyProfileImage(userDetails, image, profile));
     }
     @Override
     @GetMapping("/login/kakao")

@@ -37,4 +37,7 @@ public class S3UploadService {
         String subsUrl = imageUrl.substring(s3HostUrl.length());
         amazonS3.deleteObject(bucket, subsUrl);
     }
+    public String getDefaultImageUrl(String imageUrl)  {
+        return s3HostUrl + imageUrl + ".png";
+    }
 }

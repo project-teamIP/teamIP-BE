@@ -52,8 +52,8 @@ public class UserService {
         User user = User.of(signupRequestDto, passwordEncoder.encode(signupRequestDto.getPassword()), defaultUrl);
         checkDuplicatedValue(user);
 
-        if(signupRequestDto.getInterests() != null){
-            if(signupRequestDto.getInterests().size()>=5){
+        if (signupRequestDto.getInterests() != null) {
+            if (signupRequestDto.getInterests().size() >= 5) {
                 throw new IllegalArgumentException("관심사는 최대 4개까지 선택가능합니다.");
             }
 
@@ -123,20 +123,40 @@ public class UserService {
 
 
     @Transactional
-    public UrlResponseDto modifyProfileImage(UserDetailsImpl userDetails, MultipartFile image) throws IOException {
+    public UrlResponseDto modifyProfileImage(UserDetailsImpl userDetails, MultipartFile image, String profile) throws IOException {
         User user = userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(
                 () -> new RuntimeException("존재하지 않는 사용자입니다.")
         );
-        String imageUrl = s3UploadService.saveFile(image);
+        modifyImageValidate(image, profile);
+        String imageUrl = saveAndGetNewImageUrl(image, profile);
 
-        if (!user.getImage().contains(".png")) {
-            s3UploadService.deleteImage(user.getImage());
-        }
+        deletePreviousImageIfNotDefaultImage(user);
         user.modifyProfileImage(imageUrl);
 
         return UrlResponseDto.builder()
                 .url(imageUrl)
                 .build();
+    }
+
+    private void deletePreviousImageIfNotDefaultImage(User user) {
+        if (!user.getImage().contains(".png")) {
+            s3UploadService.deleteImage(user.getImage());
+        }
+    }
+
+    private String saveAndGetNewImageUrl(MultipartFile image, String profile) throws IOException {
+        if (image == null) {
+            return s3UploadService.getDefaultImageUrl(profile);
+
+        } else {
+            return s3UploadService.saveFile(image);
+        }
+    }
+
+    private static void modifyImageValidate(MultipartFile image, String profile) {
+        if (image == null && profile == null) {
+            throw new NullPointerException("등록할 이미지 파일 혹은 기본 이미지 이름 중 하나는 필수입니다.");
+        }
     }
 
 
@@ -185,7 +205,7 @@ public class UserService {
                 }
         );
     }
-  
+
     public HttpHeaders createTokenHeader(String jwtAccessToken, String refreshToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("AccessToken", jwtAccessToken);
@@ -193,7 +213,7 @@ public class UserService {
         return headers;
     }
 
-    public int countActiveUser(){
+    public int countActiveUser() {
         int activeUser = 0;
         activeUser = refreshTokenRepository.countRefreshTokens();
         return activeUser;
@@ -202,7 +222,7 @@ public class UserService {
     @Transactional
     public StatusResponseDto rateCleanPoint(User user, String partnerNickname, Long point) {
 
-        if(user.getNickname().equals(partnerNickname)){
+        if (user.getNickname().equals(partnerNickname)) {
             throw new IllegalArgumentException("본인의 점수는 매길 수 없습니다.");
         }
 
@@ -213,12 +233,12 @@ public class UserService {
 
         return StatusResponseDto.builder()
                 .status(HttpStatus.OK)
-                .message(partnerNickname+"님의 점수를 등록했습니다!")
+                .message(partnerNickname + "님의 점수를 등록했습니다!")
                 .build();
     }
 
     public DashBoardResponseDto getDashBoardInfo(UserDetailsImpl userDetails) {
-        User user= userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(()->new NullPointerException("없는 유저입니다"));
+        User user = userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(() -> new NullPointerException("없는 유저입니다"));
 
         return DashBoardResponseDto.builder()
                 .matchRoomList(matchDataService.getMatchRoomResponseDtos(user))
