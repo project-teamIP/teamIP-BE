@@ -31,12 +31,6 @@ public class User {
     private String nickname;
 
     @Column(nullable = false)
-    private Boolean isKakao;
-
-    @Column(nullable = false)
-    private Boolean isGoogle;
-
-    @Column(nullable = false)
     private String language;
 
     @Column(nullable = false)
@@ -57,9 +51,12 @@ public class User {
     @Column(nullable = false)
     private String image;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private UserLog userLog;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status;
+    private LoginType loginType;
 
     @Builder
     private User(String loginId, String password, String nickname, String image, String country, String gender, String language) {
@@ -67,14 +64,12 @@ public class User {
         this.password = password;
         this.nickname = nickname;
         this.cleanPoint = 50L;
-        this.isKakao = Boolean.FALSE;
-        this.isGoogle = Boolean.FALSE;
         this.isLocked = Boolean.FALSE;
         this.country = defaultValue(country);
         this.gender = defaultValue(gender);
         this.language = defaultValue(language);
         this.image = image;
-        this.status = UserStatus.ACTIVE;
+        this.loginType = LoginType.NORMAL;
     }
 
     private String defaultValue(String value) {
@@ -98,6 +93,10 @@ public class User {
         this.isLocked = Boolean.TRUE;
     }
 
+    public void enableUserAccount() {
+        this.isLocked = Boolean.FALSE;
+    }
+
     public void modifyProfileImage(String imageUrl) {
         this.image = imageUrl;
     }
@@ -107,8 +106,8 @@ public class User {
         this.language = Optional.ofNullable(updateProfileDto.getLanguage()).orElse(this.language);
         this.gender = Optional.ofNullable(updateProfileDto.getGender()).orElse(this.gender);
         this.country = Optional.ofNullable(updateProfileDto.getCountry()).orElse(this.country);
-        if (updateProfileDto.getInterests() != null&& !updateProfileDto.getInterests().isEmpty()) {
-            if(updateProfileDto.getInterests().size()>=5){
+        if (updateProfileDto.getInterests() != null && !updateProfileDto.getInterests().isEmpty()) {
+            if (updateProfileDto.getInterests().size() >= 5) {
                 throw new IllegalArgumentException("관심사는 최대 4개까지 선택가능합니다.");
             }
             this.interests.clear();
@@ -116,10 +115,6 @@ public class User {
                 this.interests.add(new Interest(interestName, this));
             }
         }
-    }
-
-    public void setStatus(UserStatus userStatus) {
-        this.status = userStatus;
     }
 
     public void updateCleanPoint(Long point) {
@@ -136,4 +131,13 @@ public class User {
             interest.setUser(this);
         }
     }
+
+    public void setUserLog(UserLog userLog) {
+        this.userLog = userLog;
+    }
+
+    public void setLoginType(LoginType loginType) {
+        this.loginType = loginType;
+    }
+
 }
