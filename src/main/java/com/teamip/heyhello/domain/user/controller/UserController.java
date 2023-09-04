@@ -41,6 +41,12 @@ public class UserController implements UserSwaggerController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.signup(signupRequestDto));
     }
+    @PostMapping("/rejoin")
+    public ResponseEntity<StatusResponseDto> rejoin(@RequestParam String loginId) {
+        StatusResponseDto response = userService.rejoin(loginId);
+
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
     @Override
     @DeleteMapping("/withdrawal")
     public ResponseEntity<StatusResponseDto> withdrawal(@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -118,6 +124,21 @@ public class UserController implements UserSwaggerController {
     public ResponseEntity<StatusResponseDto> getKakaoTokenForWithdrawal(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
 
         return kakaoService.getKakaoTokenForWithdrawal(code);
+    }
+    @PostMapping("/reactive/social")
+    public ResponseEntity<StatusResponseDto> reactiveSocialUser(@RequestParam String provider,
+                                                                @RequestParam String loginId) {
+        ResponseEntity<StatusResponseDto> responseEntity;
+
+        if ("kakao".equals(provider)) {
+            responseEntity = kakaoService.reactiveKakaoUser(loginId);
+        } else if ("google".equals(provider)) {
+            responseEntity = googleService.reactiveGoogleUser(loginId);
+        } else {
+            throw new IllegalArgumentException("유효한 provider가 아닙니다.");
+        }
+
+        return responseEntity;
     }
     @Override
     @PostMapping("/withdrawal/social")
