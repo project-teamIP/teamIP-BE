@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamip.heyhello.domain.user.dto.GoogleUserInfoDto;
 import com.teamip.heyhello.domain.user.dto.LoginResponseDto;
+import com.teamip.heyhello.domain.user.entity.LoginType;
 import com.teamip.heyhello.domain.user.entity.User;
+import com.teamip.heyhello.domain.user.entity.UserStatus;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -140,6 +143,7 @@ public class GoogleService {
                     .image(image)
                     .build();
 
+            googleUser.setLoginType(LoginType.GOOGLE);
             userRepository.save(googleUser);
         }
         return googleUser;
@@ -161,4 +165,14 @@ public class GoogleService {
         return userService.withdrawal(userDetails, atk);
     }
 
+    public ResponseEntity<StatusResponseDto> reactiveGoogleUser(String loginId) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+
+        if (user.getUserLog().getStatus() != UserStatus.WITHDRAWAL) {
+            throw new IllegalArgumentException("탈퇴한 유저가 아닙니다.");
+        }
+
+        return ResponseEntity.ok(userService.rejoinStatus(user));
+    }
 }

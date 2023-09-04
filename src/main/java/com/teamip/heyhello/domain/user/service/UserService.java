@@ -6,11 +6,10 @@ import com.teamip.heyhello.domain.hourtraffic.service.HourTrafficService;
 import com.teamip.heyhello.domain.match.service.MatchDataService;
 import com.teamip.heyhello.domain.memo.service.MemoService;
 import com.teamip.heyhello.domain.user.dto.*;
-import com.teamip.heyhello.domain.user.entity.Interest;
-import com.teamip.heyhello.domain.user.entity.User;
-import com.teamip.heyhello.domain.user.entity.UserStatus;
+import com.teamip.heyhello.domain.user.entity.*;
 import com.teamip.heyhello.domain.user.repository.DashBoardRepository;
 import com.teamip.heyhello.domain.user.repository.UserRepository;
+import com.teamip.heyhello.domain.user.repository.UserlogRepository;
 import com.teamip.heyhello.global.auth.UserDetailsImpl;
 import com.teamip.heyhello.global.dto.StatusResponseDto;
 import com.teamip.heyhello.global.redis.RefreshTokenRepository;
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,14 +46,15 @@ public class UserService {
     private final MemoService memoService;
     private final HourTrafficService hourTrafficService;
     private final DashBoardRepository dashBoardRepository;
+    private final UserlogRepository userlogRepository;
 
     public StatusResponseDto signup(SignupRequestDto signupRequestDto) {
         String defaultUrl = setRandomDefaultImageUrl();
         User user = User.of(signupRequestDto, passwordEncoder.encode(signupRequestDto.getPassword()), defaultUrl);
         checkDuplicatedValue(user);
 
-        if(signupRequestDto.getInterests() != null){
-            if(signupRequestDto.getInterests().size()>=5){
+        if (signupRequestDto.getInterests() != null) {
+            if (signupRequestDto.getInterests().size() >= 5) {
                 throw new IllegalArgumentException("관심사는 최대 4개까지 선택가능합니다.");
             }
 
@@ -65,6 +66,7 @@ public class UserService {
             user.setInterests(interests);
         }
 
+        user.setLoginType(LoginType.NORMAL);
         userRepository.save(user);
 
         return StatusResponseDto.builder()
@@ -114,8 +116,33 @@ public class UserService {
         User user = userRepository.findByLoginId(userDetails.getUsername())
                 .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
 
-        user.setStatus(UserStatus.WITHDRAWAL);
         user.disableUserAccount();
+
+        UserLog userLog = userlogRepository.findByUserId(user.getId()).orElse(null);
+
+        if (userLog != null) {
+            UserStatus userStatus = userLog.getStatus();
+
+            if (userStatus == UserStatus.DORMANT) {
+                return StatusResponseDto.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("휴면 계정입니다.")
+                        .build();
+            } else if (userStatus == UserStatus.SUSPENSION) {
+                return StatusResponseDto.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("정지당한 유저이므로 탈퇴가 불가능합니다.")
+                        .build();
+            } else if (userStatus == UserStatus.WITHDRAWAL) {
+                return StatusResponseDto.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("이미 탈퇴된 계정입니다.")
+                        .build();
+            }
+        }
+        UserLog newUserLog = new UserLog(user, UserStatus.WITHDRAWAL, LocalDateTime.now());
+        userlogRepository.save(newUserLog);
+
         tokenService.invalidateTokensForUser(user, atk);
 
         return StatusResponseDto.builder().status(HttpStatus.OK).message("회원 탈퇴 성공").build();
@@ -185,7 +212,7 @@ public class UserService {
                 }
         );
     }
-  
+
     public HttpHeaders createTokenHeader(String jwtAccessToken, String refreshToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("AccessToken", jwtAccessToken);
@@ -193,7 +220,7 @@ public class UserService {
         return headers;
     }
 
-    public int countActiveUser(){
+    public int countActiveUser() {
         int activeUser = 0;
         activeUser = refreshTokenRepository.countRefreshTokens();
         return activeUser;
@@ -202,7 +229,7 @@ public class UserService {
     @Transactional
     public StatusResponseDto rateCleanPoint(User user, String partnerNickname, Long point) {
 
-        if(user.getNickname().equals(partnerNickname)){
+        if (user.getNickname().equals(partnerNickname)) {
             throw new IllegalArgumentException("본인의 점수는 매길 수 없습니다.");
         }
 
@@ -213,12 +240,12 @@ public class UserService {
 
         return StatusResponseDto.builder()
                 .status(HttpStatus.OK)
-                .message(partnerNickname+"님의 점수를 등록했습니다!")
+                .message(partnerNickname + "님의 점수를 등록했습니다!")
                 .build();
     }
 
     public DashBoardResponseDto getDashBoardInfo(UserDetailsImpl userDetails) {
-        User user= userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(()->new NullPointerException("없는 유저입니다"));
+        User user = userRepository.findByLoginId(userDetails.getUsername()).orElseThrow(() -> new NullPointerException("없는 유저입니다"));
 
         return DashBoardResponseDto.builder()
                 .matchRoomList(matchDataService.getMatchRoomResponseDtos(user))
@@ -231,5 +258,40 @@ public class UserService {
     public DashBoardResponseDto getDashBordData(UserDetailsImpl userDetails) {
 
         return dashBoardRepository.getDashBoard(userDetails);
+    }
+    @Transactional
+    public StatusResponseDto rejoinStatus(User user) {
+        UserLog userLog = userlogRepository.findByUserId(user.getId()).orElse(null);
+
+        if (userLog != null && userLog.getStatus() == UserStatus.WITHDRAWAL) {
+            if (userLog.isRejoinAllowed()) {
+                userlogRepository.delete(userLog);
+
+                user.enableUserAccount();
+                userRepository.save(user);
+
+                return StatusResponseDto.builder()
+                        .status(HttpStatus.OK)
+                        .message("재가입이 완료되었습니다")
+                        .build();
+            } else {
+                return StatusResponseDto.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("탈퇴 후 24시간이 지나야 재가입 가능합니다.")
+                        .build();
+            }
+        } else {
+            return StatusResponseDto.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+    }
+
+    public StatusResponseDto rejoin(String loginId) {
+        User user = userRepository.findByLoginId(loginId).orElseThrow(
+                () -> new NotFoundException("존재하지 않는 사용자입니다.")
+        );
+
+        return rejoinStatus(user);
     }
 }
